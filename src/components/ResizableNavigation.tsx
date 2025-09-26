@@ -41,7 +41,7 @@ export default function ResizableNavigation() {
         <NavbarLogo />
         <NavItems items={navItems} />
         <div className="flex items-center gap-4">
-          <NavbarButton variant="primary" className="font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white">
+          <NavbarButton variant="primary" className="font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white rounded-full">
             Contact
           </NavbarButton>
         </div>
@@ -75,7 +75,7 @@ export default function ResizableNavigation() {
             <NavbarButton
               onClick={() => setIsMobileMenuOpen(false)}
               variant="primary"
-              className="w-full font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white"
+              className="w-full font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white rounded-full"
             >
               Contact
             </NavbarButton>
