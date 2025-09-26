@@ -13,6 +13,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        'bricolage': ['Bricolage Grotesque', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -56,6 +59,14 @@ export default {
           "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
+        },
+        // Custom agency colors
+        agency: {
+          blue: "hsl(var(--agency-blue))",
+          "dark-blue": "hsl(var(--agency-dark-blue))",
+          "light-gray": "hsl(var(--agency-light-gray))",
+          "medium-gray": "hsl(var(--agency-medium-gray))",
+          dark: "hsl(var(--agency-dark))",
         },
       },
       borderRadius: {
