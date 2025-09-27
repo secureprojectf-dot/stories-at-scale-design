@@ -19,7 +19,7 @@ const HeroSection = () => {
         <div className="relative z-10 max-w-4xl text-left px-8 sm:px-12 md:px-16 lg:px-20">
           <div className="font-bricolage text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8 normal-case">
             <LayoutTextFlip
-              text="digital marketing that "
+              text="Digital Marketing that "
               words={["transforms", "amplifies", "elevates", "revolutionizes"]}
               duration={2500}
             />
