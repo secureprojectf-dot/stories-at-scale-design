@@ -11,6 +11,7 @@ import {
   MobileNavMenu,
 } from "@/components/ui/resizable-navbar";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ResizableNavigation() {
   const navItems = [
@@ -33,6 +34,7 @@ export default function ResizableNavigation() {
   ];
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <Navbar>
@@ -41,7 +43,12 @@ export default function ResizableNavigation() {
         <NavbarLogo />
         <NavItems items={navItems} />
         <div className="flex items-center gap-4">
-          <NavbarButton variant="primary" className="font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white rounded-full">
+          <NavbarButton 
+            variant="primary" 
+            className="font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white rounded-full"
+            onClick={() => navigate('/contact')}
+            as="button"
+          >
             Contact
           </NavbarButton>
         </div>
@@ -73,9 +80,13 @@ export default function ResizableNavigation() {
           ))}
           <div className="flex w-full flex-col gap-4">
             <NavbarButton
-              onClick={() => setIsMobileMenuOpen(false)}
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                navigate('/contact');
+              }}
               variant="primary"
               className="w-full font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white rounded-full"
+              as="button"
             >
               Contact
             </NavbarButton>
