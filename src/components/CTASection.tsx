@@ -26,12 +26,16 @@ const CTASection = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-            <Button className="font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white px-8 py-3 text-lg rounded-full">
+            <Button 
+              className="font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white px-8 py-3 text-lg rounded-full"
+              onClick={() => window.location.href = '/contact'}
+            >
               Get started
             </Button>
             <Button 
               variant="outline" 
               className="font-bricolage bg-transparent border-white text-white hover:bg-white hover:text-agency-dark px-8 py-3 text-lg rounded-full"
+              onClick={() => window.location.href = '/contact'}
             >
               Contact us
             </Button>

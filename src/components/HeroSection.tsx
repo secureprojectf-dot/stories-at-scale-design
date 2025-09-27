@@ -33,8 +33,11 @@ const HeroSection = () => {
             strategies.
           </p>
           
-          <Button className="font-bricolage bg-white text-agency-dark hover:bg-agency-light-gray px-8 py-3 text-lg">
-            Explore
+          <Button 
+            className="font-bricolage bg-white text-agency-dark hover:bg-agency-light-gray px-8 py-3 text-lg"
+            onClick={() => window.location.href = '/contact'}
+          >
+            Get Started
           </Button>
         </div>
       </div>
