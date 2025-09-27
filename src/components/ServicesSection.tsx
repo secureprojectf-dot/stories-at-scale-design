@@ -1,6 +1,6 @@
 "use client"; // Required for framer-motion animations
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import digitalMarketingImg from "@/assets/digital-marketing.jpg";
 import contentCreationImg from "@/assets/content-creation.jpg";
 import marketingStrategyImg from "@/assets/marketing-strategy.jpg";
@@ -40,11 +40,7 @@ const ServicesSection = () => {
     hidden: { opacity: 0, y: 50 }, // Start off-screen and invisible
     visible: { 
       opacity: 1, 
-      y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeInOut",
-      }
+      y: 0
     }, // Animate to original position and fully visible
   };
 
@@ -75,6 +71,7 @@ const ServicesSection = () => {
             <motion.div
               key={index}
               variants={cardVariants}
+              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
               whileHover={{ y: -8, transition: { duration: 0.2 } }} // Special effect: lift card on hover
             >
               <div 
