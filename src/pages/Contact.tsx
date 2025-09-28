@@ -58,18 +58,9 @@ const Contact = () => {
     
     try {
       const validatedData = contactSchema.parse(formData);
-      
-      // Here you would typically send the data to your backend
       console.log("Form submitted:", validatedData);
       
-      // Reset form on success
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        message: "",
-        services: []
-      });
+      setFormData({ name: "", email: "", phone: "", message: "", services: [] });
       setErrors({});
       
       alert("Thank you for your message! We'll get back to you soon.");
@@ -78,9 +69,7 @@ const Contact = () => {
       if (error instanceof z.ZodError) {
         const newErrors: Record<string, string> = {};
         error.errors.forEach(err => {
-          if (err.path[0]) {
-            newErrors[err.path[0] as string] = err.message;
-          }
+          if (err.path[0]) newErrors[err.path[0] as string] = err.message;
         });
         setErrors(newErrors);
       }
@@ -90,45 +79,39 @@ const Contact = () => {
   };
 
   return (
-    <div className="h-screen overflow-hidden bg-white font-bricolage">
-      {/* Back to Home Button - Top Right */}
-      <Button
-        asChild
-        variant="ghost"
-        className="absolute top-4 right-4 z-50 bg-white/90 backdrop-blur-sm hover:bg-white"
-      >
-        <Link to="/">
-          <Home className="w-4 h-4 mr-2" />
-          Back to Home
-        </Link>
-      </Button>
-
-      <div className="flex h-full">
-        {/* Left Side - White Background */}
-        <div className="flex-1 bg-white p-8 flex flex-col justify-between">
+    // On small screens, allow scrolling if content overflows
+    <div className="min-h-screen bg-white font-bricolage md:h-screen md:overflow-hidden">
+      <div className="flex h-full flex-col md:flex-row">
+        {/* 
+          Left Side - Blue Background 
+          - Hidden on mobile (hidden)
+          - Becomes a flex container on medium screens and up (md:flex)
+          - Right corners are rounded for a modern look (rounded-r-3xl)
+        */}
+        <div className="hidden flex-1 flex-col justify-between rounded-r-3xl bg-blue-600 p-8 text-white md:flex">
           {/* Profile Section */}
           <div className="mt-8">
-            <div className="flex items-center mb-6">
-              <div className="w-16 h-16 bg-gray-100 rounded-full mr-4 flex items-center justify-center overflow-hidden">
+            <div className="mb-6 flex items-center">
+              <div className="mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-blue-700">
                 <img 
-                  src="https://i.ytimg.com/vi/uVyFsh9g3iM/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGUgRihYMA8=&rs=AOn4CLDAYWhGOFIKBBCC9rESxVdpl_Q7MQ"
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTFn4R1C2f_1L0Qenfy1mzZpmpPyTetzjNhA&s"
                   alt="Harshith Tunuguntla"
-                  className="w-full h-full object-cover rounded-full"
+                  className="h-full w-full rounded-full object-cover"
                 />
               </div>
               <div className="flex gap-2">
-                <Badge variant="secondary" className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
+                <Badge variant="secondary" className="rounded-full bg-white px-4 py-2 text-blue-600 hover:bg-gray-100">
                   hello@storiesatscale.in
                 </Badge>
-                <Badge variant="secondary" className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
+                <Badge variant="secondary" className="rounded-full bg-white px-4 py-2 text-blue-600 hover:bg-gray-100">
                   Send Message
                 </Badge>
               </div>
             </div>
             
             <div className="mb-8">
-              <h3 className="text-gray-800 text-lg font-medium mb-2">Harshith Tunuguntla -</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
+              <h3 className="mb-2 text-lg font-medium text-white">Harshith Tunuguntla -</h3>
+              <p className="leading-relaxed text-blue-100">
                 Project Coordinator,<br />
                 can guide your project's<br />
                 initial steps.
@@ -137,34 +120,49 @@ const Contact = () => {
           </div>
 
           {/* Main Heading */}
-          <div className="flex-1 flex items-center">
-            <h1 className="text-gray-900 text-6xl md:text-7xl lg:text-8xl font-bold leading-tight">
+          <div className="flex flex-1 items-center">
+            <h1 className="text-6xl font-bold leading-tight text-white md:text-7xl lg:text-8xl">
               Every project<br />
               starts with a plan.
             </h1>
           </div>
 
           {/* Social Icons */}
-          <div className="flex gap-4 mb-8">
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
-              <Facebook className="w-6 h-6 text-white" />
-            </div>
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
-              <Instagram className="w-6 h-6 text-white" />
-            </div>
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
-              <Linkedin className="w-6 h-6 text-white" />
-            </div>
-            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
-              <Twitter className="w-6 h-6 text-white" />
-            </div>
+          <div className="mb-8 flex gap-4">
+            <a href="#" aria-label="Facebook" className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-blue-600 transition-colors hover:bg-gray-100">
+              <Facebook className="h-6 w-6" />
+            </a>
+            <a href="#" aria-label="Instagram" className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-blue-600 transition-colors hover:bg-gray-100">
+              <Instagram className="h-6 w-6" />
+            </a>
+            <a href="#" aria-label="LinkedIn" className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-blue-600 transition-colors hover:bg-gray-100">
+              <Linkedin className="h-6 w-6" />
+            </a>
+            <a href="#" aria-label="Twitter" className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-blue-600 transition-colors hover:bg-gray-100">
+              <Twitter className="h-6 w-6" />
+            </a>
           </div>
         </div>
 
-        {/* Right Side - Dark Background Form */}
-        <div className="flex-1 bg-gray-900 p-8 flex flex-col">
-          <div className="max-w-md mx-auto w-full flex-1 flex flex-col justify-center">
-            <h2 className="text-white text-3xl md:text-4xl font-bold mb-8 leading-tight">
+        {/* 
+          Right Side - White Background Form 
+          - Full width on mobile, flex-1 on larger screens
+        */}
+        <div className="relative flex w-full flex-1 flex-col bg-white p-8">
+          {/* Back to Home Button - Top Right */}
+          <Button
+            asChild
+            variant="ghost"
+            className="absolute top-4 right-4 z-50 h-auto rounded-full bg-gray-100 px-4 py-2 text-gray-800 backdrop-blur-sm hover:bg-gray-200"
+          >
+            <Link to="/">
+              <Home className="mr-2 h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
+
+          <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-12 md:py-0">
+            <h2 className="mb-8 text-3xl font-bold leading-tight text-gray-900 md:text-4xl">
               What services<br />
               we can support<br />
               you with?
@@ -173,17 +171,17 @@ const Contact = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Services Selection */}
               <div>
-                <p className="text-white text-sm mb-4">I'm interested in</p>
-                <div className="flex flex-wrap gap-2 mb-6">
+                <p className="mb-4 text-sm text-gray-600">I'm interested in</p>
+                <div className="mb-6 flex flex-wrap gap-2">
                   {services.map((service) => (
                     <button
                       key={service}
                       type="button"
                       onClick={() => toggleService(service)}
-                      className={`px-4 py-2 rounded-full border text-sm transition-colors ${
+                      className={`rounded-full border px-4 py-2 text-sm transition-colors ${
                         formData.services.includes(service)
-                          ? 'bg-blue-600 text-white border-blue-600'
-                          : 'bg-transparent text-white border-gray-600 hover:border-gray-400'
+                          ? 'border-blue-600 bg-blue-600 text-white'
+                          : 'border-gray-300 bg-transparent text-gray-700 hover:border-gray-500'
                       }`}
                     >
                       {service}
@@ -191,7 +189,7 @@ const Contact = () => {
                   ))}
                 </div>
                 {errors.services && (
-                  <p className="text-red-400 text-sm">{errors.services}</p>
+                  <p className="text-sm text-red-500">{errors.services}</p>
                 )}
               </div>
 
@@ -202,10 +200,10 @@ const Contact = () => {
                     placeholder="Your Name"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-blue-400"
+                    className="border-0 border-b border-gray-300 bg-transparent px-0 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500"
                   />
                   {errors.name && (
-                    <p className="text-red-400 text-sm mt-1">{errors.name}</p>
+                    <p className="mt-1 text-sm text-red-500">{errors.name}</p>
                   )}
                 </div>
 
@@ -215,10 +213,10 @@ const Contact = () => {
                     placeholder="E-mail"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-blue-400"
+                    className="border-0 border-b border-gray-300 bg-transparent px-0 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500"
                   />
                   {errors.email && (
-                    <p className="text-red-400 text-sm mt-1">{errors.email}</p>
+                    <p className="mt-1 text-sm text-red-500">{errors.email}</p>
                   )}
                 </div>
 
@@ -227,10 +225,10 @@ const Contact = () => {
                     placeholder="Phone"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-blue-400"
+                    className="border-0 border-b border-gray-300 bg-transparent px-0 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500"
                   />
                   {errors.phone && (
-                    <p className="text-red-400 text-sm mt-1">{errors.phone}</p>
+                    <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
                   )}
                 </div>
 
@@ -239,10 +237,10 @@ const Contact = () => {
                     placeholder="Message"
                     value={formData.message}
                     onChange={(e) => handleInputChange('message', e.target.value)}
-                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-blue-400 resize-none min-h-[80px]"
+                    className="min-h-[80px] resize-none border-0 border-b border-gray-300 bg-transparent px-0 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500"
                   />
                   {errors.message && (
-                    <p className="text-red-400 text-sm mt-1">{errors.message}</p>
+                    <p className="mt-1 text-sm text-red-500">{errors.message}</p>
                   )}
                 </div>
               </div>
@@ -251,7 +249,7 @@ const Contact = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-full text-lg transition-colors mt-8"
+                className="mt-8 w-full rounded-full bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-blue-700"
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
