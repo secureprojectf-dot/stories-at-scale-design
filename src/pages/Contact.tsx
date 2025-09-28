@@ -111,14 +111,14 @@ const Contact = () => {
             <div className="flex items-center mb-6">
               <div className="w-16 h-16 bg-gray-100 rounded-full mr-4 flex items-center justify-center overflow-hidden">
                 <img 
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face&auto=format"
-                  alt="Andrew Hughes"
+                  src="https://i.ytimg.com/vi/uVyFsh9g3iM/hqdefault.jpg?sqp=-oaymwEmCOADEOgC8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGUgRihYMA8=&rs=AOn4CLDAYWhGOFIKBBCC9rESxVdpl_Q7MQ"
+                  alt="Harshith Tunuguntla"
                   className="w-full h-full object-cover rounded-full"
                 />
               </div>
               <div className="flex gap-2">
                 <Badge variant="secondary" className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
-                  andrew@cc.com
+                  hello@storiesatscale.in
                 </Badge>
                 <Badge variant="secondary" className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
                   Send Message
@@ -127,7 +127,7 @@ const Contact = () => {
             </div>
             
             <div className="mb-8">
-              <h3 className="text-gray-800 text-lg font-medium mb-2">Andrew Hughes -</h3>
+              <h3 className="text-gray-800 text-lg font-medium mb-2">Harshith Tunuguntla -</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
                 Project Coordinator,<br />
                 can guide your project's<br />
