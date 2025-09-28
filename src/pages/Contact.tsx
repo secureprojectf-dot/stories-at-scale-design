@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Twitter, Home } from "lucide-react";
+import { Link } from "react-router-dom";
 import { z } from "zod";
 
 const contactSchema = z.object({
@@ -90,27 +91,43 @@ const Contact = () => {
 
   return (
     <div className="h-screen overflow-hidden bg-white font-bricolage">
+      {/* Back to Home Button - Top Right */}
+      <Button
+        asChild
+        variant="ghost"
+        className="absolute top-4 right-4 z-50 bg-white/90 backdrop-blur-sm hover:bg-white"
+      >
+        <Link to="/">
+          <Home className="w-4 h-4 mr-2" />
+          Back to Home
+        </Link>
+      </Button>
+
       <div className="flex h-full">
-        {/* Left Side - Lime Background */}
-        <div className="flex-1 bg-lime-400 p-8 flex flex-col justify-between">
+        {/* Left Side - White Background */}
+        <div className="flex-1 bg-white p-8 flex flex-col justify-between">
           {/* Profile Section */}
           <div className="mt-8">
             <div className="flex items-center mb-6">
-              <div className="w-16 h-16 bg-gray-300 rounded-full mr-4 flex items-center justify-center overflow-hidden">
-                <div className="w-full h-full bg-gray-400 rounded-full"></div>
+              <div className="w-16 h-16 bg-gray-100 rounded-full mr-4 flex items-center justify-center overflow-hidden">
+                <img 
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face&auto=format"
+                  alt="Andrew Hughes"
+                  className="w-full h-full object-cover rounded-full"
+                />
               </div>
               <div className="flex gap-2">
-                <Badge variant="secondary" className="bg-gray-800 text-white px-4 py-2 rounded-full">
+                <Badge variant="secondary" className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
                   andrew@cc.com
                 </Badge>
-                <Badge variant="secondary" className="bg-gray-800 text-white px-4 py-2 rounded-full">
+                <Badge variant="secondary" className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700">
                   Send Message
                 </Badge>
               </div>
             </div>
             
             <div className="mb-8">
-              <h3 className="text-gray-700 text-lg font-medium mb-2">Andrew Hughes -</h3>
+              <h3 className="text-gray-800 text-lg font-medium mb-2">Andrew Hughes -</h3>
               <p className="text-gray-600 text-sm leading-relaxed">
                 Project Coordinator,<br />
                 can guide your project's<br />
@@ -121,7 +138,7 @@ const Contact = () => {
 
           {/* Main Heading */}
           <div className="flex-1 flex items-center">
-            <h1 className="text-black text-6xl md:text-7xl lg:text-8xl font-bold leading-tight">
+            <h1 className="text-gray-900 text-6xl md:text-7xl lg:text-8xl font-bold leading-tight">
               Every project<br />
               starts with a plan.
             </h1>
@@ -129,16 +146,16 @@ const Contact = () => {
 
           {/* Social Icons */}
           <div className="flex gap-4 mb-8">
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
               <Facebook className="w-6 h-6 text-white" />
             </div>
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
               <Instagram className="w-6 h-6 text-white" />
             </div>
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
               <Linkedin className="w-6 h-6 text-white" />
             </div>
-            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
               <Twitter className="w-6 h-6 text-white" />
             </div>
           </div>
@@ -165,7 +182,7 @@ const Contact = () => {
                       onClick={() => toggleService(service)}
                       className={`px-4 py-2 rounded-full border text-sm transition-colors ${
                         formData.services.includes(service)
-                          ? 'bg-lime-400 text-black border-lime-400'
+                          ? 'bg-blue-600 text-white border-blue-600'
                           : 'bg-transparent text-white border-gray-600 hover:border-gray-400'
                       }`}
                     >
@@ -185,7 +202,7 @@ const Contact = () => {
                     placeholder="Your Name"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-lime-400"
+                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-blue-400"
                   />
                   {errors.name && (
                     <p className="text-red-400 text-sm mt-1">{errors.name}</p>
@@ -198,7 +215,7 @@ const Contact = () => {
                     placeholder="E-mail"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-lime-400"
+                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-blue-400"
                   />
                   {errors.email && (
                     <p className="text-red-400 text-sm mt-1">{errors.email}</p>
@@ -210,7 +227,7 @@ const Contact = () => {
                     placeholder="Phone"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-lime-400"
+                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-blue-400"
                   />
                   {errors.phone && (
                     <p className="text-red-400 text-sm mt-1">{errors.phone}</p>
@@ -222,7 +239,7 @@ const Contact = () => {
                     placeholder="Message"
                     value={formData.message}
                     onChange={(e) => handleInputChange('message', e.target.value)}
-                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-lime-400 resize-none min-h-[80px]"
+                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-blue-400 resize-none min-h-[80px]"
                   />
                   {errors.message && (
                     <p className="text-red-400 text-sm mt-1">{errors.message}</p>
@@ -234,7 +251,7 @@ const Contact = () => {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-lime-400 hover:bg-lime-500 text-black font-semibold py-4 px-8 rounded-full text-lg transition-colors mt-8"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-full text-lg transition-colors mt-8"
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
