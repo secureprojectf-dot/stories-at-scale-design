@@ -1,195 +1,244 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { z } from "zod";
 
 const contactSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters").max(100),
-  email: z.string().email("Invalid email address").max(255),
-  phone: z.string().min(10, "Phone number must be at least 10 digits").max(20),
-  company: z.string().max(100).optional(),
-  message: z.string().min(10, "Message must be at least 10 characters").max(1000),
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  phone: z.string().trim().min(1, "Phone is required").max(20, "Phone must be less than 20 characters"),
+  message: z.string().trim().min(1, "Message is required").max(1000, "Message must be less than 1000 characters"),
+  services: z.array(z.string()).min(1, "Please select at least one service")
 });
 
-type ContactFormData = z.infer<typeof contactSchema>;
-
 const Contact = () => {
-  const { toast } = useToast();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+    services: [] as string[]
+  });
+  
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
-  });
+  const services = [
+    "UI/UX Design",
+    "Website", 
+    "Brand Identity",
+    "Content Production",
+    "Illustration",
+    "Other"
+  ];
 
-  const onSubmit = async (data: ContactFormData) => {
+  const toggleService = (service: string) => {
+    setFormData(prev => ({
+      ...prev,
+      services: prev.services.includes(service)
+        ? prev.services.filter(s => s !== service)
+        : [...prev.services, service]
+    }));
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    toast({
-      title: "Message sent successfully!",
-      description: "We'll get back to you within 24 hours.",
-    });
-    
-    reset();
-    setIsSubmitting(false);
+    try {
+      const validatedData = contactSchema.parse(formData);
+      
+      // Here you would typically send the data to your backend
+      console.log("Form submitted:", validatedData);
+      
+      // Reset form on success
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        message: "",
+        services: []
+      });
+      setErrors({});
+      
+      alert("Thank you for your message! We'll get back to you soon.");
+      
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const newErrors: Record<string, string> = {};
+        error.errors.forEach(err => {
+          if (err.path[0]) {
+            newErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(newErrors);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-background py-20 px-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="font-bricolage text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
-            Get in Touch
-          </h1>
-          <p className="font-bricolage text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Ready to transform your digital presence? Let's discuss how we can help your business grow.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Contact Information */}
-          <div className="lg:col-span-1 space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-bricolage">Contact Information</CardTitle>
-                <CardDescription>
-                  Get in touch with our team for a consultation
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <Mail className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Email</p>
-                    <p className="text-muted-foreground">hello@storiesatscale.com</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-4">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <Phone className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Phone</p>
-                    <p className="text-muted-foreground">+1 (555) 123-4567</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-4">
-                  <div className="bg-primary/10 p-3 rounded-lg">
-                    <MapPin className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-medium">Office</p>
-                    <p className="text-muted-foreground">123 Business Ave, Suite 100<br />New York, NY 10001</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+    <div className="h-screen overflow-hidden bg-white font-bricolage">
+      <div className="flex h-full">
+        {/* Left Side - Lime Background */}
+        <div className="flex-1 bg-lime-400 p-8 flex flex-col justify-between">
+          {/* Profile Section */}
+          <div className="mt-8">
+            <div className="flex items-center mb-6">
+              <div className="w-16 h-16 bg-gray-300 rounded-full mr-4 flex items-center justify-center overflow-hidden">
+                <div className="w-full h-full bg-gray-400 rounded-full"></div>
+              </div>
+              <div className="flex gap-2">
+                <Badge variant="secondary" className="bg-gray-800 text-white px-4 py-2 rounded-full">
+                  andrew@cc.com
+                </Badge>
+                <Badge variant="secondary" className="bg-gray-800 text-white px-4 py-2 rounded-full">
+                  Send Message
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="mb-8">
+              <h3 className="text-gray-700 text-lg font-medium mb-2">Andrew Hughes -</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Project Coordinator,<br />
+                can guide your project's<br />
+                initial steps.
+              </p>
+            </div>
           </div>
 
-          {/* Contact Form */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="font-bricolage">Send us a Message</CardTitle>
-                <CardDescription>
-                  Fill out the form below and we'll get back to you as soon as possible
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Name *</Label>
-                      <Input
-                        id="name"
-                        {...register("name")}
-                        className={errors.name ? "border-destructive" : ""}
-                      />
-                      {errors.name && (
-                        <p className="text-sm text-destructive">{errors.name.message}</p>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        {...register("email")}
-                        className={errors.email ? "border-destructive" : ""}
-                      />
-                      {errors.email && (
-                        <p className="text-sm text-destructive">{errors.email.message}</p>
-                      )}
-                    </div>
-                  </div>
+          {/* Main Heading */}
+          <div className="flex-1 flex items-center">
+            <h1 className="text-black text-6xl md:text-7xl lg:text-8xl font-bold leading-tight">
+              Every project<br />
+              starts with a plan.
+            </h1>
+          </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone *</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        {...register("phone")}
-                        className={errors.phone ? "border-destructive" : ""}
-                      />
-                      {errors.phone && (
-                        <p className="text-sm text-destructive">{errors.phone.message}</p>
-                      )}
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="company">Company</Label>
-                      <Input
-                        id="company"
-                        {...register("company")}
-                      />
-                    </div>
-                  </div>
+          {/* Social Icons */}
+          <div className="flex gap-4 mb-8">
+            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+              <Facebook className="w-6 h-6 text-white" />
+            </div>
+            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+              <Instagram className="w-6 h-6 text-white" />
+            </div>
+            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+              <Linkedin className="w-6 h-6 text-white" />
+            </div>
+            <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+              <Twitter className="w-6 h-6 text-white" />
+            </div>
+          </div>
+        </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Message *</Label>
-                    <Textarea
-                      id="message"
-                      rows={6}
-                      {...register("message")}
-                      className={errors.message ? "border-destructive" : ""}
-                      placeholder="Tell us about your project and how we can help..."
-                    />
-                    {errors.message && (
-                      <p className="text-sm text-destructive">{errors.message.message}</p>
-                    )}
-                  </div>
+        {/* Right Side - Dark Background Form */}
+        <div className="flex-1 bg-gray-900 p-8 flex flex-col">
+          <div className="max-w-md mx-auto w-full flex-1 flex flex-col justify-center">
+            <h2 className="text-white text-3xl md:text-4xl font-bold mb-8 leading-tight">
+              What services<br />
+              we can support<br />
+              you with?
+            </h2>
 
-                  <Button
-                    type="submit"
-                    className="w-full font-bricolage"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Sending..." : "Send Message"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Services Selection */}
+              <div>
+                <p className="text-white text-sm mb-4">I'm interested in</p>
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {services.map((service) => (
+                    <button
+                      key={service}
+                      type="button"
+                      onClick={() => toggleService(service)}
+                      className={`px-4 py-2 rounded-full border text-sm transition-colors ${
+                        formData.services.includes(service)
+                          ? 'bg-lime-400 text-black border-lime-400'
+                          : 'bg-transparent text-white border-gray-600 hover:border-gray-400'
+                      }`}
+                    >
+                      {service}
+                    </button>
+                  ))}
+                </div>
+                {errors.services && (
+                  <p className="text-red-400 text-sm">{errors.services}</p>
+                )}
+              </div>
+
+              {/* Form Fields */}
+              <div className="space-y-6">
+                <div>
+                  <Input
+                    placeholder="Your Name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value)}
+                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-lime-400"
+                  />
+                  {errors.name && (
+                    <p className="text-red-400 text-sm mt-1">{errors.name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Input
+                    type="email"
+                    placeholder="E-mail"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-lime-400"
+                  />
+                  {errors.email && (
+                    <p className="text-red-400 text-sm mt-1">{errors.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Input
+                    placeholder="Phone"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-lime-400"
+                  />
+                  {errors.phone && (
+                    <p className="text-red-400 text-sm mt-1">{errors.phone}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Textarea
+                    placeholder="Message"
+                    value={formData.message}
+                    onChange={(e) => handleInputChange('message', e.target.value)}
+                    className="bg-transparent border-0 border-b border-gray-600 rounded-none px-0 py-3 text-white placeholder-gray-400 focus:border-lime-400 resize-none min-h-[80px]"
+                  />
+                  {errors.message && (
+                    <p className="text-red-400 text-sm mt-1">{errors.message}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-lime-400 hover:bg-lime-500 text-black font-semibold py-4 px-8 rounded-full text-lg transition-colors mt-8"
+              >
+                {isSubmitting ? "Submitting..." : "Submit"}
+              </Button>
+            </form>
           </div>
         </div>
       </div>
