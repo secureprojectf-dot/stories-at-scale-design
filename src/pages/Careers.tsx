@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, DollarSign, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { MapPin, Clock, DollarSign, Users, ArrowLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import ResizableNavigation from "@/components/ResizableNavigation";
 
 const jobOpenings = [
   {
@@ -79,11 +80,25 @@ const benefits = [
 ];
 
 const Careers = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className="min-h-screen bg-background py-20 px-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-16">
+    <div className="min-h-screen bg-background font-bricolage">
+      <ResizableNavigation />
+      <div className="pt-20 pb-20 px-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Back Button */}
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)}
+            className="mb-8 font-bricolage"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+
+          {/* Header */}
+          <div className="text-center mb-16">
           <h1 className="font-bricolage text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6">
             Join Our Team
           </h1>
@@ -202,6 +217,7 @@ const Careers = () => {
               </Button>
             </CardContent>
           </Card>
+        </div>
         </div>
       </div>
     </div>

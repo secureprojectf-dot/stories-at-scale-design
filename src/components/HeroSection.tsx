@@ -26,7 +26,6 @@ const HeroSection = () => {
               text="Digital Marketing that "
               words={["transforms", "amplifies", "elevates", "revolutionizes"]}
               duration={2500}
-              style={{ color: '#2563eb' }} 
             />
             <br />
             your <span 

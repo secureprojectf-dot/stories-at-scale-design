@@ -2,7 +2,7 @@ import ResizableNavigation from "@/components/ResizableNavigation";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
 import ExpertiseSection from "@/components/ExpertiseSection";
-import WhyChooseUsSection from "@/components/WhyChooseUsSection";
+
 import TestimonialsSection from "@/components/TestimonialsSection";
 import ProcessSection from "@/components/ProcessSection";
 import CTASection from "@/components/CTASection";
@@ -17,7 +17,6 @@ const Index = () => {
         <HeroSection />
         <ServicesSection />
         <ExpertiseSection />
-        <WhyChooseUsSection />
         <TestimonialsSection />
         <ProcessSection />
         <CTASection />
