@@ -1,113 +1,88 @@
-"use client"; // Required for framer-motion animations
+"use client";
 
-import { motion } from "motion/react";
-import digitalMarketingImg from "@/assets/digital-marketing.jpg";
-import contentCreationImg from "@/assets/content-creation.jpg";
-import marketingStrategyImg from "@/assets/marketing-strategy.jpg";
+// The main section component rendering the new content without icons.
+const ExpertiseSection = () => {
+  // Header Component (Previously "Beyond")
+  const Header = () => (
+    <div className="flex flex-col-reverse items-center justify-between text-black mx-5 my-10 md:flex-row md:my-20 xl:mx-20">
+      <div className="max-w-sm text-center text-[17px]/5 font-medium font-fk-grotesk md:mx-8 md:max-w-[350px] md:text-justify md:text-[14px] xl:text-xl">
+        Your brand isn&apos;t an aesthetic. It&apos;s a living organism. We help it thrive
+        by bringing a dynamic perspective and collaborative expertise to
+        everything we build.
+      </div>
+      <div className="mb-3 max-w-xl text-right font-fk-display text-3xl md:text-[68px] md:leading-14 xl:text-9xl/30">
+        Beyond Design
+      </div>
+    </div>
+  );
 
-const ServicesSection = () => {
-  const services = [
-    {
-      image: digitalMarketingImg,
-      title: "Digital Marketing",
-      description: "Targeted campaigns that reach and convert your ideal audience."
-    },
-    {
-      image: contentCreationImg,
-      title: "Content Creation", 
-      description: "Engaging content that tells your authentic story."
-    },
-    {
-      image: marketingStrategyImg,
-      title: "Marketing Strategy",
-      description: "Data-driven strategies that drive measurable business growth."
-    }
-  ];
-
-  // Animation variants for the container to orchestrate the stagger effect
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2, // Time delay between each child animation
-      },
-    },
-  };
-
-  // Animation variants for each card
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50 }, // Start off-screen and invisible
-    visible: { 
-      opacity: 1, 
-      y: 0
-    }, // Animate to original position and fully visible
-  };
-
-  return (
-    <section className="py-24 px-8 bg-background" id="services">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-20 text-left">
-          <p className="font-bricolage text-sm font-medium text-agency-medium-gray mb-4 tracking-wider">
-            Expertise
-          </p>
-          <h2 className="font-bricolage text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
-            Comprehensive <span className="text-agency-blue">Digital</span><br />
-            <span className="text-agency-blue">Marketing Solutions</span>
-          </h2>
-          <p className="font-bricolage text-lg text-agency-medium-gray mt-8 max-w-3xl">
-            We deliver strategic marketing approaches tailored to your unique business needs and goals.
-          </p>
+  // Grid Component with icons removed.
+  const ContentGrid = () => (
+    <div className="mx-4 flex flex-wrap text-black md:mx-8 xl:mx-20 xl:flex-nowrap xl:gap-x-8">
+      {/* Column 1 */}
+      <div className="my-4 flex flex-col justify-end rounded-xl bg-[#32F6C7] p-3 md:p-10 xl:my-0 xl:rounded-[40px] xl:p-20">
+        {/* Icon Removed */}
+        <div>
+          <div className="mt-3 font-fk-display text-[22px] xl:text-5xl">You First</div>
+          <div className="mt-1.5 font-fk-grotesk text-[17px]/5 xl:mt-5 xl:text-xl">
+            You&apos;re the reason we&apos;re here, full stop. We value collaboration
+            above ego and tackle the extra mile to achieve your vision with a
+            can-do attitude.
+          </div>
+        </div>
+      </div>
+      
+      {/* Column 2 */}
+      <div className="w-full space-y-5 xl:w-auto">
+        {/* Top Row in Column 2 */}
+        <div className="flex min-h-fit flex-col justify-end rounded-xl bg-white p-3 md:p-10 xl:min-h-[50vh] xl:rounded-[40px] xl:p-20">
+          {/* Icon Removed */}
+          <div>
+            <div className="mt-3 font-fk-display text-[22px] xl:text-5xl">Cutting Edge</div>
+            <div className="mt-1.5 font-fk-grotesk text-[17px]/5 xl:mt-5 xl:text-xl">
+              Proactive about adopting the latest technologies, we deliver
+              forward-thinking brand solutions that evolve to serve future
+              needs.
+            </div>
+          </div>
         </div>
         
-        <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12"
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }} // Animate when 20% of the element is in view, and only once
-        >
-          {services.map((service, index) => (
-            <motion.div
-              key={index}
-              variants={cardVariants}
-              transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-              whileHover={{ y: -8, transition: { duration: 0.2 } }} // Special effect: lift card on hover
-            >
-              <div 
-                className="relative p-[1px] bg-gradient-to-b from-gray-200 to-transparent dark:from-gray-800 dark:to-transparent rounded-2xl h-full group hover:from-agency-blue transition-all duration-300"
-              >
-                <div 
-                  className="bg-card rounded-[15px] h-full w-full overflow-hidden"
-                >
-                  <div className="overflow-hidden">
-                    <motion.img 
-                      src={service.image} 
-                      alt={service.title}
-                      className="w-full h-56 object-cover"
-                      whileHover={{ scale: 1.05 }} // Special effect: zoom image on hover
-                      transition={{ duration: 0.3 }}
-                    />
-                  </div>
-                  <div className="p-8 text-left">
-                    <p className="font-bricolage text-5xl font-bold text-gray-200 dark:text-gray-700 mb-4">
-                      {String(index + 1).padStart(2, '0')}
-                    </p>
-                    <h3 className="font-bricolage text-2xl font-bold text-foreground mb-4">
-                      {service.title}
-                    </h3>
-                    <p className="font-bricolage text-agency-medium-gray leading-relaxed">
-                      {service.description}
-                    </p>
-                  </div>
-                </div>
+        {/* Bottom Row in Column 2 */}
+        <div className="flex flex-wrap xl:flex-nowrap xl:gap-x-8">
+          <div className="mb-4 flex w-full flex-col justify-end rounded-xl bg-[#F6FA5E] p-4 md:p-10 xl:mb-0 xl:min-h-[50vh] xl:max-w-full xl:rounded-[40px] xl:max-w-[50%]">
+            {/* Icon Removed */}
+            <div>
+              <div className="mt-3 font-fk-display text-[22px] xl:text-5xl">Hide Nothing</div>
+              <div className="mt-1.5 font-fk-grotesk text-[17px]/5 xl:mt-5 xl:text-xl">
+                &#34;Transparency&#34; isn&apos;t a buzzword for us — it&apos;s how we roll.
+                You&apos;re behind-the-scenes with our team&#44; following our every
+                move.
               </div>
-            </motion.div>
-          ))}
-        </motion.div>
+            </div>
+          </div>
+          <div className="flex w-full max-w-full flex-col justify-end rounded-xl bg-[#60C6FF] p-4 md:p-10 xl:min-h-[50vh] xl:rounded-[40px] xl:p-20">
+            {/* Icon Removed */}
+            <div>
+              <div className="mt-3 font-fk-display text-[22px] xl:text-5xl">Fresh Angles</div>
+              <div className="mt-1.5 font-fk-grotesk text-[17px]/5 xl:mt-5 xl:text-xl">
+                Explore. Adapt. Stay curious. Our team lives by these values,
+                designing to inspire and create a better, more interesting world.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <section className="bg-gray-50 py-12 dark:bg-black" id="about">
+      <div className="mx-auto max-w-screen-2xl">
+        <Header />
+        <ContentGrid />
       </div>
     </section>
   );
 };
 
-export default ServicesSection;
+export default ExpertiseSection;
