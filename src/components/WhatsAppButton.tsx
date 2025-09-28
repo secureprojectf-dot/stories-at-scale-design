@@ -2,12 +2,12 @@
 
 import React from 'react';
 
-// The SVG icon is now a small component defined inside the same file.
+// The SVG icon remains the same.
 const WhatsAppIcon = () => {
   return (
     <svg
-      height="28" // Optimized size for the button
-      width="28"
+      height="32" // Slightly increased icon size for the larger button
+      width="32"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       fill="currentColor" // Inherits the text color (white) from the button
@@ -21,10 +21,7 @@ const WhatsAppIcon = () => {
 
 const WhatsAppButton = () => {
   const handleWhatsAppClick = () => {
-    // --- IMPORTANT ---
-    // Replace this with your actual WhatsApp number, including the country code without the '+'
-    const phoneNumber = "1234567890"; 
-    
+    const phoneNumber = "1234567890"; // Replace with your actual WhatsApp number
     const message = encodeURIComponent("Hi! I'm interested in your services.");
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
@@ -34,11 +31,13 @@ const WhatsAppButton = () => {
     <div className="fixed bottom-6 right-6 z-50">
       <button
         onClick={handleWhatsAppClick}
-        className="group flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-[#1DAE58] hover:shadow-xl"
+        // --- CLASSES UPDATED ---
+        className="group flex h-16 w-16 items-center justify-center rounded-full bg-black text-white shadow-lg transition-all duration-300 hover:scale-110 hover:bg-gray-800 hover:shadow-xl"
         aria-label="Contact us on WhatsApp"
       >
         <WhatsAppIcon />
-        <div className="pointer-events-none absolute right-16 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-1 text-sm text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        {/* Tooltip position updated to match the new button size */}
+        <div className="pointer-events-none absolute right-20 top-1/2 -translate-y-1/2 whitespace-nowrap rounded-lg bg-gray-900 px-3 py-1 text-sm text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           Chat with us
         </div>
       </button>
