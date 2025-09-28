@@ -4,15 +4,16 @@ const CTASection = () => {
   return (
     <section className="py-20 px-8">
       <div 
-        className="relative py-20 px-8 md:px-16 lg:px-24 flex items-center rounded-3xl overflow-hidden"
+        className="relative py-20 px-8 md:px-16 lg:px-24 flex items-center rounded-3xl overflow-hidden bg-gray-900 md:bg-transparent"
         style={{
-          // Replace with your actual external image link
           backgroundImage: `url('https://i.ibb.co/zhWsr212/Untitled-design-13.png')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
         }}
       >
+        {/* Mobile dark overlay */}
+        <div className="absolute inset-0 bg-gray-900 md:hidden" />
         {/* Changed to a light overlay for black text readability */}
        
         
@@ -25,7 +26,7 @@ const CTASection = () => {
             Ready to elevate your digital marketing
           </h2>
           
-          <p className="font-bricolage text-lg md:text-xl mb-12 max-w-2xl mx-auto md:mx-0 leading-relaxed text-black">
+          <p className="font-bricolage text-lg md:text-xl mb-12 max-w-2xl mx-auto md:mx-0 leading-relaxed text-white md:text-black">
             Let's discuss how we can transform your brand's digital strategy and drive meaningful 
             results.
           </p>

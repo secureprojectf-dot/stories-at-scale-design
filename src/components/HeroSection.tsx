@@ -5,7 +5,7 @@ const HeroSection = () => {
   return (
     <section className="px-8 py-12">
       <div 
-        className="relative h-[75vh] flex items-center justify-start rounded-3xl overflow-hidden"
+        className="relative h-[75vh] flex items-center justify-start rounded-3xl overflow-hidden bg-gray-900 md:bg-transparent"
         style={{
           backgroundImage: `url('https://i.ibb.co/dw6YrN4m/i-2.png')`,
           backgroundSize: 'cover',
@@ -13,6 +13,8 @@ const HeroSection = () => {
           backgroundRepeat: 'no-repeat'
         }}
       >
+        {/* Mobile dark overlay */}
+        <div className="absolute inset-0 bg-gray-900 md:hidden" />
         {/* Changed to a light overlay for black text readability */}
        
         
@@ -37,7 +39,7 @@ const HeroSection = () => {
           </div>
           
           {/* Description text color changed to black */}
-          <p className="font-bricolage text-lg md:text-xl mb-16 max-w-3xl leading-relaxed text-black">
+          <p className="font-bricolage text-lg md:text-xl mb-16 max-w-3xl leading-relaxed text-white md:text-black">
             We craft <span style={{ color: '#2563eb' }}>compelling narratives</span> that drive engagement and results. Our experienced 
             digital creators turn complex marketing challenges into powerful communication 
             strategies.
