@@ -44,8 +44,11 @@ export default function ResizableNavigation() {
         <NavItems items={navItems} />
         <div className="flex items-center gap-4">
           <NavbarButton 
-            variant="primary" 
-            className="font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white rounded-full"
+            variant="primary"
+            // --- UPDATED CLASSES ---
+            // Changed background to hero section yellow and text to black.
+            // Added a slightly darker yellow for the hover effect.
+            className="font-bricolage rounded-full bg-[#F6FA5E] text-black hover:bg-yellow-300"
             onClick={() => navigate('/contact')}
             as="button"
           >
@@ -85,7 +88,9 @@ export default function ResizableNavigation() {
                 navigate('/contact');
               }}
               variant="primary"
-              className="w-full font-bricolage bg-agency-blue hover:bg-agency-dark-blue text-white rounded-full"
+              // --- UPDATED CLASSES ---
+              // Applied the same yellow background and black text here.
+              className="w-full font-bricolage rounded-full bg-[#F6FA5E] text-black hover:bg-yellow-300"
               as="button"
             >
               Contact
