@@ -12,22 +12,12 @@ const HeroSection = () => {
           {/* --- Left Column: Text Content --- */}
           <div className="z-10 max-w-2xl text-left md:w-3/5">
             
-            {/* --- MESSAGE TAG (ICON REMOVED) --- */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mb-4 inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-semibold text-white shadow-md"
-            >
-              Wanna scale your story?
-            </motion.div>
-
             <div className="font-bricolage mb-12 text-5xl font-bold leading-tight text-black normal-case md:text-6xl lg:text-7xl">
               <span className="inline-block">Digital Marketing that </span>
               <FlipWords
                 words={["transforms", "amplifies", "elevates", "revolutionizes"]}
                 duration={2500}
-                className="text-[#1E40AF] text-5xl md:text-6xl lg:text-7xl font-bold"
+                className="text-white text-5xl md:text-6xl lg:text-7xl font-bold"
               />
               <br />
               your <span className="underline decoration-black decoration-2 underline-offset-8">story</span>
@@ -39,9 +29,9 @@ const HeroSection = () => {
               strategies.
             </p>
 
-            {/* --- REDESIGNED TRANSPARENT BUTTON --- */}
+            {/* --- BLACK BUTTON WITH WHITE TEXT --- */}
             <Button
-              className="group font-bricolage flex items-center rounded-full border-2 border-black bg-transparent px-16 py-6 text-xl font-semibold text-black shadow-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-black hover:text-white hover:shadow-xl"
+              className="group font-bricolage flex items-center rounded-full border-2 border-black bg-black px-16 py-6 text-xl font-semibold text-white shadow-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-white hover:text-black hover:shadow-xl"
               onClick={() => window.location.href = '/contact'}
             >
               Get Started
