@@ -1,264 +1,183 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { Facebook, Instagram, Linkedin, Twitter, Home } from "lucide-react";
-import { Link } from "react-router-dom";
-import { z } from "zod";
+"use client";
 
-const contactSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
-  phone: z.string().trim().min(1, "Phone is required").max(20, "Phone must be less than 20 characters"),
-  message: z.string().trim().min(1, "Message is required").max(1000, "Message must be less than 1000 characters"),
-  services: z.array(z.string()).min(1, "Please select at least one service")
-});
+import { useState } from 'react';
+import { MessageSquare, Phone, Instagram, Twitter, Linkedin } from 'lucide-react';
 
-const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-    services: [] as string[]
+// A reusable component for the contact information items on the left side.
+const ContactInfoItem = ({ icon: Icon, title, children }) => (
+  <div className="flex items-start gap-4">
+    <div className="mt-1">
+      <Icon className="h-6 w-6 text-gray-600" />
+    </div>
+    <div className="flex flex-col">
+      <h3 className="font-semibold text-gray-900">{title}</h3>
+      {children}
+    </div>
+  </div>
+);
+
+// A reusable component for the selectable service checkboxes in the form.
+const ServiceCheckbox = ({ label, id, checked, onChange }) => (
+  <label htmlFor={id} className="flex items-center gap-3 text-base font-medium text-gray-800 cursor-pointer">
+    <input
+      id={id}
+      type="checkbox"
+      checked={checked}
+      onChange={onChange}
+      className="h-5 w-5 rounded border-gray-400 text-gray-900 focus:ring-gray-800"
+    />
+    {label}
+  </label>
+);
+
+const ContactPage = () => {
+  const [services, setServices] = useState({
+    websiteDesign: false,
+    uxDesign: false,
+    userResearch: false,
+    contentCreation: false,
+    strategyConsulting: false,
+    other: false
   });
+  const [otherServiceDetail, setOtherServiceDetail] = useState('');
+
+  const handleServiceChange = (event) => {
+    const { id, checked } = event.target;
+    setServices(prevServices => ({ ...prevServices, [id]: checked }));
+  };
   
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // --- Replace this URL with your external background image ---
+  const scheduleContainerBgImage = 'https://i.ibb.co/bR6cp7g9/Untitled-design-25.png';
 
-  const services = [
-    "UI/UX Design",
-    "Website", 
-    "Brand Identity",
-    "Content Production",
-    "Illustration",
-    "Other"
-  ];
-
-  const toggleService = (service: string) => {
-    setFormData(prev => ({
-      ...prev,
-      services: prev.services.includes(service)
-        ? prev.services.filter(s => s !== service)
-        : [...prev.services, service]
-    }));
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      const validatedData = contactSchema.parse(formData);
-      console.log("Form submitted:", validatedData);
-      
-      setFormData({ name: "", email: "", phone: "", message: "", services: [] });
-      setErrors({});
-      
-      alert("Thank you for your message! We'll get back to you soon.");
-      
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        const newErrors: Record<string, string> = {};
-        error.errors.forEach(err => {
-          if (err.path[0]) newErrors[err.path[0] as string] = err.message;
-        });
-        setErrors(newErrors);
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
-    // On small screens, allow scrolling if content overflows
-    <div className="min-h-screen bg-white font-bricolage md:h-screen md:overflow-hidden">
-      <div className="flex h-full flex-col md:flex-row">
-        {/* 
-          Left Side - Blue Background 
-          - Hidden on mobile (hidden)
-          - Becomes a flex container on medium screens and up (md:flex)
-          - Right corners are rounded for a modern look (rounded-r-3xl)
-        */}
-        <div className="hidden flex-1 flex-col justify-between rounded-r-3xl bg-blue-600 p-8 text-white md:flex">
-          {/* Profile Section */}
-          <div className="mt-8">
-            <div className="mb-6 flex items-center">
-              <div className="mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-blue-700">
-                <img 
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTFn4R1C2f_1L0Qenfy1mzZpmpPyTetzjNhA&s"
-                  alt="Harshith Tunuguntla"
-                  className="h-full w-full rounded-full object-cover"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Badge variant="secondary" className="rounded-full bg-white px-4 py-2 text-blue-600 hover:bg-gray-100">
-                  hello@storiesatscale.in
-                </Badge>
-                <Badge variant="secondary" className="rounded-full bg-white px-4 py-2 text-blue-600 hover:bg-gray-100">
-                  Send Message
-                </Badge>
-              </div>
-            </div>
-            
-            <div className="mb-8">
-              <h3 className="mb-2 text-lg font-medium text-white">Harshith Tunuguntla -</h3>
-              <p className="leading-relaxed text-blue-100">
-                Project Coordinator,<br />
-                can guide your project's<br />
-                initial steps.
-              </p>
-            </div>
+    <main className="w-full h-screen overflow-hidden grid grid-cols-1 md:grid-cols-10">
+
+      {/* Left Side: Contact Information & Scheduling */}
+      <div className="col-span-10 md:col-span-4 bg-white p-8 sm:p-12 flex flex-col justify-between">
+        <div>
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Stories at Scale
+            </h2>
           </div>
 
-          {/* Main Heading */}
-          <div className="flex flex-1 items-center">
-            <h1 className="text-6xl font-bold leading-tight text-white md:text-7xl lg:text-8xl">
-              Every project<br />
-              starts with a plan.
-            </h1>
-          </div>
+          <div className="space-y-10">
+            <ContactInfoItem icon={MessageSquare} title="Chat to us">
+              <p className="text-gray-600">Our friendly team is here to help.</p>
+              <a href="mailto:hello@storiesatscale.com" className="font-semibold text-gray-900 hover:underline">
+                hello@storiesatscale.in
+              </a>
+            </ContactInfoItem>
 
-          {/* Social Icons */}
-          <div className="mb-8 flex gap-4">
-            <a href="#" aria-label="Facebook" className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-blue-600 transition-colors hover:bg-gray-100">
-              <Facebook className="h-6 w-6" />
-            </a>
-            <a href="#" aria-label="Instagram" className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-blue-600 transition-colors hover:bg-gray-100">
-              <Instagram className="h-6 w-6" />
-            </a>
-            <a href="#" aria-label="LinkedIn" className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-blue-600 transition-colors hover:bg-gray-100">
-              <Linkedin className="h-6 w-6" />
-            </a>
-            <a href="#" aria-label="Twitter" className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-blue-600 transition-colors hover:bg-gray-100">
-              <Twitter className="h-6 w-6" />
-            </a>
+            <ContactInfoItem icon={Phone} title="Call us">
+              <p className="text-gray-600">Mon-Fri from 8am to 5pm.</p>
+              <a href="tel:+15550000000" className="font-semibold text-gray-900 hover:underline">
+              +91 7425882688
+              </a>
+            </ContactInfoItem>
           </div>
         </div>
 
-        {/* 
-          Right Side - White Background Form 
-          - Full width on mobile, flex-1 on larger screens
-        */}
-        <div className="relative flex w-full flex-1 flex-col bg-white p-8">
-          {/* Back to Home Button - Top Right */}
-          <Button
-            asChild
-            variant="ghost"
-            className="absolute top-4 right-4 z-50 h-auto rounded-full bg-gray-100 px-4 py-2 text-gray-800 backdrop-blur-sm hover:bg-gray-200"
-          >
-            <Link to="/">
-              <Home className="mr-2 h-4 w-4" />
-              Back to Home
-            </Link>
-          </Button>
+        {/* Schedule a Meet Section */}
+        <div className="mt-12">
+            <div 
+              className="relative aspect-square p-8 rounded-xl flex flex-col justify-between text-left bg-cover bg-center overflow-hidden"
+              style={{ backgroundImage: `url(${scheduleContainerBgImage})` }}
+            >
+              <div className="relative z-10">
+                <h3 className="text-2xl font-extrabold text-black">Schedule a Meet</h3>
+                <p className="mt-2 text-gray-800">Prefer a face-to-face? Schedule a 15-minute introductory call with our team.</p>
+                <p className="mt-1 text-sm text-gray-700">Let's connect and discuss how we can help your brand grow.</p>
+                 <button
+                  className="mt-6 w-full max-w-xs bg-transparent border-2 border-black text-black font-semibold py-3 px-6 rounded-full hover:bg-black hover:text-white transition-colors"
+                >
+                    Schedule Now!
+                </button>
+              </div>
 
-          <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-12 md:py-0">
-            <h2 className="mb-8 text-3xl font-bold leading-tight text-gray-900 md:text-4xl">
-              What services<br />
-              we can support<br />
-              you with?
-            </h2>
+              <div className="relative z-10 flex gap-6">
+                <a href="#" className="text-gray-700 hover:text-black"><Instagram size={24} /></a>
+                <a href="#" className="text-gray-700 hover:text-black"><Twitter size={24} /></a>
+                <a href="#" className="text-gray-700 hover:text-black"><Linkedin size={24} /></a>
+              </div>
+            </div>
+        </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Services Selection */}
-              <div>
-                <p className="mb-4 text-sm text-gray-600">I'm interested in</p>
-                <div className="mb-6 flex flex-wrap gap-2">
-                  {services.map((service) => (
-                    <button
-                      key={service}
-                      type="button"
-                      onClick={() => toggleService(service)}
-                      className={`rounded-full border px-4 py-2 text-sm transition-colors ${
-                        formData.services.includes(service)
-                          ? 'border-blue-600 bg-blue-600 text-white'
-                          : 'border-gray-300 bg-transparent text-gray-700 hover:border-gray-500'
-                      }`}
-                    >
-                      {service}
-                    </button>
-                  ))}
-                </div>
-                {errors.services && (
-                  <p className="text-sm text-red-500">{errors.services}</p>
+      </div>
+
+      {/* Right Side: Contact Form */}
+      <div className="relative col-span-10 md:col-span-6 bg-[#F6FA5E] p-8 sm:p-12 flex flex-col justify-center items-center overflow-y-auto">
+        
+        <a 
+            href="/" 
+            className="absolute top-8 right-8 bg-transparent border-2 border-black text-black text-sm font-semibold py-2 px-5 rounded-full hover:bg-black hover:text-white transition-colors"
+        >
+            Back to Home
+        </a>
+
+        <div className="w-full max-w-lg">
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900">
+            Let's Scale Your Story.
+          </h1>
+          <p className="mt-4 text-lg text-gray-800">
+            Clear, compelling messaging drives leads, shortens sales cycles, and powers growth. Tell us about your project.
+          </p>
+
+          <form className="mt-10 space-y-8">
+            <div className="space-y-8">
+               <div>
+                   <label htmlFor="name" className="text-base font-semibold text-gray-800">Your name</label>
+                   <input type="text" id="name" className="mt-2 w-full bg-transparent text-xl font-semibold text-gray-900 border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-black transition-colors" />
+               </div>
+               <div>
+                   <label htmlFor="email" className="text-base font-semibold text-gray-800">you@company.com</label>
+                   <input type="email" id="email" className="mt-2 w-full bg-transparent text-xl font-semibold text-gray-900 border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-black transition-colors" />
+               </div>
+               <div>
+                   <label htmlFor="project" className="text-base font-semibold text-gray-800">Tell us a little about the project...</label>
+                   <textarea id="project" rows="2" className="mt-2 w-full bg-transparent text-xl font-semibold text-gray-900 border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-black transition-colors resize-none"></textarea>
+               </div>
+            </div>
+
+            <div>
+              <h4 className="text-lg font-semibold text-gray-900">How can we help?</h4>
+              <p className="text-sm text-gray-700 mb-4">(Please mark all that apply)</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+                <ServiceCheckbox label="Website design" id="websiteDesign" checked={services.websiteDesign} onChange={handleServiceChange} />
+                <ServiceCheckbox label="Content creation" id="contentCreation" checked={services.contentCreation} onChange={handleServiceChange} />
+                <ServiceCheckbox label="UX design" id="uxDesign" checked={services.uxDesign} onChange={handleServiceChange} />
+                <ServiceCheckbox label="Strategy & consulting" id="strategyConsulting" checked={services.strategyConsulting} onChange={handleServiceChange} />
+                <ServiceCheckbox label="User research" id="userResearch" checked={services.userResearch} onChange={handleServiceChange} />
+                <ServiceCheckbox label="Other" id="other" checked={services.other} onChange={handleServiceChange} />
+                
+                {services.other && (
+                    <div className="sm:col-span-2 transition-all duration-300 ease-in-out">
+                        <label htmlFor="otherDetail" className="text-base font-semibold text-gray-800">Please specify</label>
+                        <input
+                            type="text"
+                            id="otherDetail"
+                            value={otherServiceDetail}
+                            onChange={(e) => setOtherServiceDetail(e.target.value)}
+                            className="mt-2 w-full bg-transparent text-xl font-semibold text-gray-900 border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-black transition-colors"
+                            placeholder="Your specific need..."
+                        />
+                    </div>
                 )}
               </div>
+            </div>
 
-              {/* Form Fields */}
-              <div className="space-y-6">
-                <div>
-                  <Input
-                    placeholder="Your Name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="border-0 border-b border-gray-300 bg-transparent px-0 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500"
-                  />
-                  {errors.name && (
-                    <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Input
-                    type="email"
-                    placeholder="E-mail"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="border-0 border-b border-gray-300 bg-transparent px-0 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500"
-                  />
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-red-500">{errors.email}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Input
-                    placeholder="Phone"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="border-0 border-b border-gray-300 bg-transparent px-0 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500"
-                  />
-                  {errors.phone && (
-                    <p className="mt-1 text-sm text-red-500">{errors.phone}</p>
-                  )}
-                </div>
-
-                <div>
-                  <Textarea
-                    placeholder="Message"
-                    value={formData.message}
-                    onChange={(e) => handleInputChange('message', e.target.value)}
-                    className="min-h-[80px] resize-none border-0 border-b border-gray-300 bg-transparent px-0 py-3 text-gray-900 placeholder-gray-500 focus:border-blue-500"
-                  />
-                  {errors.message && (
-                    <p className="mt-1 text-sm text-red-500">{errors.message}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="mt-8 w-full rounded-full bg-blue-600 px-8 py-4 text-lg font-semibold text-white transition-colors hover:bg-blue-700"
-              >
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </Button>
-            </form>
-          </div>
+            <button
+              type="submit"
+              className="w-full bg-transparent border-2 border-black text-black text-lg font-semibold py-4 px-6 rounded-full hover:bg-black hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors"
+            >
+              Let's get started!
+            </button>
+          </form>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
 
-export default Contact;
+export default ContactPage;
