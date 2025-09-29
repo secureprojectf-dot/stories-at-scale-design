@@ -14,14 +14,12 @@ const Index = () => {
     <div className="min-h-screen bg-background font-bricolage">
       <ResizableNavigation />
       <HeroSection />
-      <div className="relative z-10">
-        <ServicesSection />
-        <ExpertiseSection />
-        <TestimonialsSection />
-        <ProcessSection />
-        <CTASection />
-        <Footer />
-      </div>
+      <ServicesSection />
+      <ExpertiseSection />
+      <TestimonialsSection />
+      <ProcessSection />
+      <CTASection />
+      <Footer />
       <WhatsAppButton />
     </div>
   );
