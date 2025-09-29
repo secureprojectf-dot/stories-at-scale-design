@@ -1,14 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { LayoutTextFlip } from "@/components/ui/layout-text-flip";
-import { motion } from "framer-motion"; // Import framer-motion for animations
+import { FlipWords } from "@/components/ui/flip-words";
+import { motion } from "motion/react";
 
 const HeroSection = () => {
   return (
-    <section className="px-4 py-12 sm:px-8">
-      <div
-        className="relative flex min-h-[80vh] items-center justify-center rounded-3xl bg-[#F6FA5E] p-4 sm:p-8 md:p-12"
-      >
+    <section className="absolute top-0 left-0 right-0 min-h-screen bg-[#F6FA5E] flex items-center justify-center px-4 sm:px-8">
+      <div className="relative flex w-full max-w-7xl items-center justify-center p-4 sm:p-8 md:p-12">
         <div className="flex w-full max-w-7xl flex-col items-center gap-12 md:flex-row md:justify-between">
           
           {/* --- Left Column: Text Content --- */}
@@ -24,21 +22,15 @@ const HeroSection = () => {
               Wanna scale your story?
             </motion.div>
 
-            <div
-              className="font-bricolage mb-12 text-5xl font-bold leading-tight text-black normal-case md:text-6xl lg:text-7xl"
-            >
-              <LayoutTextFlip
-                text="Digital Marketing that "
+            <div className="font-bricolage mb-12 text-5xl font-bold leading-tight text-black normal-case md:text-6xl lg:text-7xl">
+              <span className="inline-block">Digital Marketing that </span>
+              <FlipWords
                 words={["transforms", "amplifies", "elevates", "revolutionizes"]}
                 duration={2500}
-                style={{ color: '#1E40AF' }}
+                className="text-[#1E40AF] text-5xl md:text-6xl lg:text-7xl font-bold"
               />
               <br />
-              your <span
-                className="underline decoration-black decoration-2 underline-offset-8"
-              >
-                story
-              </span>
+              your <span className="underline decoration-black decoration-2 underline-offset-8">story</span>
             </div>
 
             <p className="font-bricolage mb-16 max-w-3xl text-lg leading-relaxed text-black md:text-xl">

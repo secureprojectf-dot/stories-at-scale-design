@@ -13,8 +13,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background font-bricolage">
       <ResizableNavigation />
-      <div className="pt-20">
-        <HeroSection />
+      <HeroSection />
+      <div className="relative z-10">
         <ServicesSection />
         <ExpertiseSection />
         <TestimonialsSection />
