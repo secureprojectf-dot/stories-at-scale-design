@@ -13,7 +13,8 @@ const HeroSection = () => {
           <div className="z-10 max-w-2xl text-left md:w-3/5">
             
             <div className="font-bricolage mb-12 text-5xl font-bold leading-tight text-black normal-case md:text-6xl lg:text-7xl">
-              <span className="inline-block">Digital Marketing that </span>
+              Digital Marketing that
+              <br />
               <FlipWords
                 words={["transforms", "amplifies", "elevates", "revolutionizes"]}
                 duration={2500}
