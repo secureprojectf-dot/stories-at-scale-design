@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { MessageSquare, Phone, Instagram, Twitter, Linkedin } from 'lucide-react';
 
 // A reusable component for the contact information items on the left side.
@@ -109,12 +110,12 @@ const ContactPage = () => {
       {/* Right Side: Contact Form */}
       <div className="relative col-span-10 md:col-span-6 bg-[#F6FA5E] p-8 sm:p-12 flex flex-col justify-center items-center overflow-y-auto">
         
-        <a 
-            href="/" 
+        <Link 
+            to="/" 
             className="absolute top-8 right-8 bg-transparent border-2 border-black text-black text-sm font-semibold py-2 px-5 rounded-full hover:bg-black hover:text-white transition-colors"
         >
             Back to Home
-        </a>
+        </Link>
 
         <div className="w-full max-w-lg">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900">
@@ -136,7 +137,7 @@ const ContactPage = () => {
                </div>
                <div>
                    <label htmlFor="project" className="text-base font-semibold text-gray-800">Tell us a little about the project...</label>
-                   <textarea id="project" rows="2" className="mt-2 w-full bg-transparent text-xl font-semibold text-gray-900 border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-black transition-colors resize-none"></textarea>
+                   <textarea id="project" rows={2} className="mt-2 w-full bg-transparent text-xl font-semibold text-gray-900 border-0 border-b-2 border-gray-700 focus:ring-0 focus:border-black transition-colors resize-none"></textarea>
                </div>
             </div>
 

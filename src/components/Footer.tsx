@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Twitter, Linkedin, Youtube } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // The background text component has been updated.
 const GiantTextBackground = () => {
@@ -36,12 +37,12 @@ const Footer = () => {
             <a href="#about" className="font-bricolage text-white hover:text-gray-300 transition-colors">
               About
             </a>
-            <a href="/careers" className="font-bricolage text-white hover:text-gray-300 transition-colors">
+            <Link to="/careers" className="font-bricolage text-white hover:text-gray-300 transition-colors">
               Careers
-            </a>
-            <a href="/contact" className="font-bricolage text-white hover:text-gray-300 transition-colors">
+            </Link>
+            <Link to="/contact" className="font-bricolage text-white hover:text-gray-300 transition-colors">
               Contact
-            </a>
+            </Link>
           </div>
           
           <div className="flex items-center space-x-4">
