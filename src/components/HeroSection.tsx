@@ -30,9 +30,9 @@ const HeroSection = () => {
               strategies.
             </p>
 
-            {/* --- BLACK BUTTON WITH WHITE TEXT --- */}
+            {/* --- TRANSPARENT BUTTON WITH BLACK BORDER --- */}
             <Button
-              className="group font-bricolage flex items-center rounded-full border-2 border-black bg-black px-16 py-6 text-xl font-semibold text-white shadow-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-white hover:text-black hover:shadow-xl"
+              className="group font-bricolage flex items-center rounded-full border-2 border-black bg-transparent px-16 py-6 text-xl font-semibold text-black shadow-lg transition-all duration-300 ease-in-out hover:scale-105 hover:bg-black hover:text-white hover:shadow-xl"
               onClick={() => window.location.href = '/contact'}
             >
               Get Started
