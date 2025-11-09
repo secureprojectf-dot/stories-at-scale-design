@@ -236,7 +236,7 @@ export const NavbarLogo = () => {
       href="#"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-black"
     >
-      <span className="font-bricolage font-bold text-xl text-black dark:text-white">Stories at Scale</span>
+      <span className="font-bricolage font-bold text-xl text-black dark:text-white">Dhasha Media</span>
     </a>
   );
 };

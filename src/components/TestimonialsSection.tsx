@@ -57,7 +57,7 @@ export const Testimonials = () => {
           className="absolute text-black top-0 left-0"
         >
           <Card
-            testimonial={`"Stories at Scale is in the top 1% of teams I've worked with. They genuinely care about the project and outcomes."`}
+            testimonial={`"Dhasha Media is in the top 1% of teams I've worked with. They genuinely care about the project and outcomes."`}
             reviewer="Rishi"
             icon="https://cdn.prod.website-files.com/63dae19244d432799bf5baa4/665a014030cda3f1845a8562_image_2024-05-31_12-34-52.png"
           />
@@ -80,7 +80,7 @@ export const Testimonials = () => {
           className="absolute left-0 bottom-50"
         >
           <Card
-            testimonial={`"Stories at Scale delivered in weeks what we'd been trying to achieve for over a year. Game-changing quality and speed!"`}
+            testimonial={`"Dhasha Media delivered in weeks what we'd been trying to achieve for over a year. Game-changing quality and speed!"`}
             reviewer="Rishi"
             icon="https://cdn.prod.website-files.com/63dae19244d432799bf5baa4/665a01571b3134a64425d44a_image_2024-05-31_12-35-12-p-500.png"
           />
@@ -103,7 +103,7 @@ export const Testimonials = () => {
           className="absolute right-10 top-0"
         >
           <Card
-            testimonial={`"When even our most critical stakeholders praised the UX, we knew Stories at Scale had nailed it. Exceptional work."`}
+            testimonial={`"When even our most critical stakeholders praised the UX, we knew Dhasha Media had nailed it. Exceptional work."`}
             reviewer="Naveen"
             icon="https://cdn.prod.website-files.com/63dae19244d432799bf5baa4/665a01690c508b5bebac1311_image_2024-05-31_12-38-04-p-500.png"
           />
@@ -126,7 +126,7 @@ export const Testimonials = () => {
           className="absolute right-0"
         >
           <Card
-            testimonial={`"Huge thanks to the Stories at Scale team. Incredibly proud of what we built together."`}
+            testimonial={`"Huge thanks to the Dhasha Media team. Incredibly proud of what we built together."`}
             reviewer="Rishi"
             icon="https://cdn.prod.website-files.com/63dae19244d432799bf5baa4/665a01757508c661ca1da843_image_2024-05-31_12-35-52.png"
           />
@@ -150,7 +150,7 @@ export const Testimonials = () => {
           className="absolute right-1/2 translate-1/2 bottom-0"
         >
           <Card
-            testimonial={`"Stories at Scale brought mind-opening ideas and turned them into tangible, effective designs. Truly impressive."`}
+            testimonial={`"Dhasha Media brought mind-opening ideas and turned them into tangible, effective designs. Truly impressive."`}
             reviewer="Rishi"
             icon="https://cdn.prod.website-files.com/63dae19244d432799bf5baa4/665a018147f26450b8d1c326_image_2024-05-31_12-36-23.png"
           />
@@ -183,7 +183,7 @@ export const Testimonials = () => {
         </div>
 
         <div className="mx-10 xl:mx-0 text-4xl md:text-5xl font-fk-display text-center leading-tight max-w-5xl mt-4">
-          Clients can't say enough about Stories at Scale.
+          Clients can't say enough about Dhasha Media.
         </div>
 
         <div className="font-fk-grotesk mx-10 xl:mx-0 text-base md:text-lg max-w-md text-center mt-5">
@@ -193,22 +193,22 @@ export const Testimonials = () => {
 
         <div className="flex flex-col xl:hidden mt-8">
           <Card
-            testimonial={`"Stories at Scale brought mind-opening ideas and turned them into tangible, effective designs. Truly impressive."`}
+            testimonial={`"Dhasha Media brought mind-opening ideas and turned them into tangible, effective designs. Truly impressive."`}
             reviewer="Rishi"
             icon="https://cdn.prod.website-files.com/63dae19244d432799bf5baa4/665a018147f26450b8d1c326_image_2024-05-31_12-36-23.png"
           />
           <Card
-            testimonial={`"Huge thanks to the Stories at Scale team. Incredibly proud of what we built together."`}
+            testimonial={`"Huge thanks to the Dhasha Media team. Incredibly proud of what we built together."`}
             reviewer="Naveen"
             icon="https://cdn.prod.website-files.com/63dae19244d432799bf5baa4/665a01757508c661ca1da843_image_2024-05-31_12-35-52.png"
           />
           <Card
-            testimonial={`"Stories at Scale delivered in weeks what we'd been trying to achieve for over a year. Game-changing quality and speed!"`}
+            testimonial={`"Dhasha Media delivered in weeks what we'd been trying to achieve for over a year. Game-changing quality and speed!"`}
             reviewer="Rishi"
             icon="https://cdn.prod.website-files.com/63dae19244d432799bf5baa4/665a01571b3134a64425d44a_image_2024-05-31_12-35-12-p-500.png"
           />
           <Card
-            testimonial={`"Huge thanks to the Stories at Scale team. Incredibly proud of what we built together."`}
+            testimonial={`"Huge thanks to the Dhasha Media team. Incredibly proud of what we built together."`}
             reviewer="Rishi"
             icon="https://cdn.prod.website-files.com/63dae19244d432799bf5baa4/665a01757508c661ca1da843_image_2024-05-31_12-35-52.png"
           />

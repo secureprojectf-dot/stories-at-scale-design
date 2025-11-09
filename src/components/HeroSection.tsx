@@ -8,17 +8,13 @@ const HeroSection = () => {
         <div className="flex w-full flex-col items-center text-center">
           
           <div className="font-bricolage mb-12 text-5xl font-bold leading-tight text-black normal-case md:text-6xl lg:text-7xl">
-            Digital Marketing that
+            Dhasha Media
             <br />
-            <span className="text-black">transforms</span>
-            <br />
-            your <span className="underline decoration-black decoration-2 underline-offset-8">story</span>
+            <span className="text-black">Your Digital Growth Partner</span>
           </div>
 
           <p className="font-bricolage mb-16 max-w-2xl text-lg leading-relaxed text-black md:text-xl">
-            We craft <span style={{ color: '#1E40AF' }}>compelling narratives</span> that drive engagement and results. Our experienced
-            digital creators turn complex marketing challenges into powerful communication
-            strategies.
+            We are Dhasha Media - a full-service digital marketing agency that transforms brands through innovative strategies, compelling content, and data-driven campaigns.
           </p>
 
           <Button

@@ -6,12 +6,10 @@ const ExpertiseSection = () => {
   const Header = () => (
     <div className="flex flex-col-reverse items-center justify-between text-black mx-5 my-10 md:flex-row md:my-20 xl:mx-20">
       <div className="max-w-sm text-center text-[17px]/5 font-medium font-fk-grotesk md:mx-8 md:max-w-[350px] md:text-justify md:text-[14px] xl:text-xl">
-        Your brand isn&apos;t an aesthetic. It&apos;s a living organism. We help it thrive
-        by bringing a dynamic perspective and collaborative expertise to
-        everything we build.
+        At Dhasha Media, we don&apos;t just create campaigns - we build digital experiences that connect, engage, and convert. Our data-driven approach ensures every strategy delivers measurable results.
       </div>
       <div className="mb-3 max-w-xl text-right font-fk-display text-3xl md:text-[68px] md:leading-14 xl:text-9xl/30">
-        Beyond Design
+        Why Dhasha Media
       </div>
     </div>
   );

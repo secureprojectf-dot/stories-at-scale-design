@@ -5,11 +5,8 @@ import { Link } from "react-router-dom";
 const GiantTextBackground = () => {
   return (
     <div className="absolute inset-0 z-0 flex items-center justify-center overflow-hidden">
-      {/* 1. Text changed to "stories at scale" */}
-      {/* 2. Font sizes adjusted to fit the longer text */}
-      {/* 3. Negative margins adjusted for the new text */}
       <div className="whitespace-nowrap capitalize font-fk-display text-[60px] md:text-[120px] xl:text-[220px] tracking-tighter text-white leading-none -mb-4 md:-mb-8 xl:-mb-20">
-        stories at scale
+        dhasha media
       </div>
     </div>
   );
@@ -24,7 +21,7 @@ const Footer = () => {
       <div className="relative z-10 max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center mb-8">
           <div className="font-bricolage text-2xl font-bold text-white mb-6 md:mb-0">
-            Stories at Scale
+            Dhasha Media
           </div>
           
           <div className="flex items-center space-x-8 mb-6 md:mb-0">
@@ -67,7 +64,7 @@ const Footer = () => {
         <div className="border-t border-gray-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="font-bricolage text-gray-400 text-sm mb-4 md:mb-0">
-              © 2024 Stories at Scale. All rights reserved.
+              © 2024 Dhasha Media. All rights reserved.
             </p>
             
             <div className="flex space-x-6">

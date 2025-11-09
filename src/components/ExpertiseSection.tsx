@@ -13,7 +13,7 @@ const Jaw = () => {
             
             <div className="flex flex-col justify-between md:flex-row xl:items-end">
                 <div className="max-w-sm text-[23px]/6 font-fk-display font-semibold md:max-w-[200px] md:text-[36px]/10 xl:font-medium xl:text-7xl xl:leading-tight">
-                    SAS&apos;s subscription service
+                    Dhasha Media&apos;s Digital Services
                 </div>
                 <div className="mt-10 grid w-full grid-cols-2 gap-y-2 font-fk-display md:w-1/2 xl:mt-0 xl:grid-cols-3 xl:gap-x-32">
                     <div>
