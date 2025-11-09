@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[70vh] bg-[#F6FA5E] flex items-center justify-center px-4 sm:px-8 pt-20 mx-4 my-6 rounded-[3rem]">
+    <section className="relative min-h-[70vh] bg-[#F6FA5E] flex items-center justify-center px-4 sm:px-8 pt-32 pb-16 mx-4 mt-24 mb-6 rounded-[3rem]">
       <div className="relative flex w-full max-w-4xl items-center justify-center p-4 sm:p-8 md:p-12">
         <div className="flex w-full flex-col items-center text-center">
           
