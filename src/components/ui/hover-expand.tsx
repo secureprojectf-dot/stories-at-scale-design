@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 interface Panel {
@@ -7,7 +7,6 @@ interface Panel {
   name: string;
   role: string;
   image: string;
-  description: string;
 }
 
 interface HoverExpandProps {
@@ -24,83 +23,79 @@ export function HoverExpand({ panels, className }: HoverExpandProps) {
   };
 
   return (
-    <div className={cn("flex h-[500px] w-full gap-2", className)}>
+    <div className={cn("flex h-[600px] w-full gap-1", className)}>
       {panels.map((panel, index) => {
         const isExpanded = hoveredIndex === index || clickedIndex === index;
-        const isCollapsed = (hoveredIndex !== null && hoveredIndex !== index) || 
-                          (clickedIndex !== null && clickedIndex !== index);
 
         return (
           <motion.div
             key={panel.id}
-            className="relative overflow-hidden rounded-2xl cursor-pointer"
+            className="relative overflow-hidden cursor-pointer bg-muted"
             initial={false}
             animate={{
-              flex: isExpanded ? 2 : 1,
-              opacity: isCollapsed ? 0.6 : 1,
+              flex: isExpanded ? 3 : 0.5,
             }}
             transition={{
               type: "spring",
-              stiffness: 300,
-              damping: 30,
+              stiffness: 400,
+              damping: 40,
             }}
             onMouseEnter={() => setHoveredIndex(index)}
             onMouseLeave={() => setHoveredIndex(null)}
             onClick={() => handleClick(index)}
           >
-            {/* Background Image */}
-            <div 
+            {/* Background Image - only visible when expanded */}
+            <motion.div 
               className="absolute inset-0 bg-cover bg-center"
               style={{ backgroundImage: `url(${panel.image})` }}
+              initial={false}
+              animate={{
+                opacity: isExpanded ? 1 : 0,
+                scale: isExpanded ? 1 : 1.1,
+              }}
+              transition={{
+                duration: 0.4,
+              }}
             />
             
-            {/* Overlay Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+            {/* Overlay Gradient - only when expanded */}
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"
+              initial={false}
+              animate={{
+                opacity: isExpanded ? 1 : 0,
+              }}
+            />
 
-            {/* Content */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+            {/* Vertical Text - Always Visible */}
+            <div className="absolute inset-0 flex items-center justify-center">
               <motion.div
+                className="flex flex-col items-center"
                 initial={false}
                 animate={{
-                  opacity: isExpanded ? 1 : 0.9,
+                  opacity: isExpanded ? 0 : 1,
                 }}
+                transition={{ duration: 0.2 }}
               >
-                <h3 className="text-2xl font-bold mb-1">{panel.name}</h3>
-                <p className="text-sm text-white/80 mb-3">{panel.role}</p>
-                
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.p
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 30,
-                      }}
-                      className="text-sm text-white/90 leading-relaxed"
-                    >
-                      {panel.description}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            </div>
-
-            {/* Collapsed State Vertical Text */}
-            {!isExpanded && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <p className="text-white text-xl font-bold transform -rotate-90 whitespace-nowrap">
+                <p className="text-foreground text-lg font-semibold tracking-wider transform -rotate-90 whitespace-nowrap origin-center">
                   {panel.name}
                 </p>
               </motion.div>
-            )}
+            </div>
+
+            {/* Expanded Content */}
+            <motion.div
+              className="absolute bottom-0 left-0 right-0 p-8 text-white"
+              initial={false}
+              animate={{
+                opacity: isExpanded ? 1 : 0,
+                y: isExpanded ? 0 : 20,
+              }}
+              transition={{ duration: 0.3 }}
+            >
+              <h3 className="text-3xl font-bold mb-2">{panel.name}</h3>
+              <p className="text-lg text-white/90">{panel.role}</p>
+            </motion.div>
           </motion.div>
         );
       })}
