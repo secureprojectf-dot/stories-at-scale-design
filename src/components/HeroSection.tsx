@@ -4,18 +4,18 @@ import { Iphone } from "@/components/ui/iphone";
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[60vh] bg-[#F6FA5E] flex items-center justify-center px-4 sm:px-8 lg:px-16 pt-20 pb-20 mx-4 mt-24 mb-6 rounded-[3rem]">
+    <section className="relative min-h-[50vh] bg-[#F6FA5E] flex items-center justify-center px-4 sm:px-8 lg:px-16 pt-16 pb-16 mx-4 mt-24 mb-6 rounded-[3rem]">
       <div className="relative flex w-full max-w-7xl items-center justify-between gap-8 p-4 sm:p-6 md:p-8">
         {/* Left Content */}
         <div className="flex flex-col items-start text-left flex-1">
           
-          <div className="font-bricolage mb-8 text-4xl font-bold leading-tight text-black normal-case md:text-5xl lg:text-6xl">
+          <div className="font-bricolage mb-6 text-4xl font-bold leading-tight text-black normal-case md:text-5xl lg:text-6xl">
             Dhasha Media
             <br />
             <span className="text-black">Your Digital Growth Partner</span>
           </div>
 
-          <p className="font-bricolage mb-10 max-w-xl text-base leading-relaxed text-black md:text-lg">
+          <p className="font-bricolage mb-8 max-w-xl text-base leading-relaxed text-black md:text-lg">
             We are Dhasha Media - a full-service digital marketing agency that transforms brands through innovative strategies, compelling content, and data-driven campaigns.
           </p>
 
