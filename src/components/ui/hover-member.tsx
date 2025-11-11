@@ -86,7 +86,7 @@ export function HoverMember({
         </div>
 
         {/* Large Animated Text Display */}
-        <div className="text-center flex items-center justify-center min-h-[400px]">
+        <div className="text-center flex items-center justify-center min-h-[350px] w-full overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.h2
               key={displayName}
@@ -95,13 +95,12 @@ export function HoverMember({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className={cn(
-                "font-bricolage font-black uppercase tracking-tighter leading-none",
-                "text-[12rem] md:text-[16rem] lg:text-[20rem] xl:text-[24rem]",
+                "font-bricolage font-extrabold uppercase tracking-tighter leading-none whitespace-nowrap",
+                "text-[8rem] sm:text-[10rem] md:text-[12rem] lg:text-[14rem] xl:text-[16rem]",
                 hoveredMember ? "text-[#F6FA5E]" : textColor
               )}
               style={{ 
-                fontWeight: 900,
-                WebkitTextStroke: hoveredMember ? "2px rgba(0,0,0,0.1)" : "none"
+                fontWeight: 800
               }}
             >
               {displayName.split("").map((char, index) => (
