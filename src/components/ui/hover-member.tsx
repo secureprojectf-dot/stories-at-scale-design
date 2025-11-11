@@ -42,7 +42,7 @@ export function HoverMember({
   return (
     <div
       className={cn(
-        "relative w-full min-h-screen py-20 px-4 sm:px-8 overflow-hidden flex flex-col items-center justify-center",
+        "relative w-full min-h-screen py-8 px-4 sm:px-8 overflow-hidden flex flex-col items-center justify-center",
         backgroundColor,
         className
       )}
@@ -64,7 +64,7 @@ export function HoverMember({
 
       <div className="max-w-7xl mx-auto w-full">
         {/* Small Team Images at Top */}
-        <div className="flex items-center justify-center gap-3 mb-20">
+        <div className="flex items-center justify-center gap-3 mb-12">
           {teamMembers.map((member, index) => (
             <motion.div
               key={index}
@@ -86,7 +86,7 @@ export function HoverMember({
         </div>
 
         {/* Large Animated Text Display */}
-        <div className="text-center flex items-center justify-center min-h-[300px]">
+        <div className="text-center flex items-center justify-center min-h-[400px]">
           <AnimatePresence mode="wait">
             <motion.h2
               key={displayName}
@@ -95,9 +95,14 @@ export function HoverMember({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               className={cn(
-                "font-bricolage text-6xl md:text-8xl lg:text-9xl font-black uppercase tracking-tight",
-                hoveredMember ? hoverTextColor : textColor
+                "font-bricolage font-black uppercase tracking-tighter leading-none",
+                "text-[12rem] md:text-[16rem] lg:text-[20rem] xl:text-[24rem]",
+                hoveredMember ? "text-[#F6FA5E]" : textColor
               )}
+              style={{ 
+                fontWeight: 900,
+                WebkitTextStroke: hoveredMember ? "2px rgba(0,0,0,0.1)" : "none"
+              }}
             >
               {displayName.split("").map((char, index) => (
                 <motion.span
