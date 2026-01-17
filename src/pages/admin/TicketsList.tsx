@@ -16,12 +16,16 @@ import {
     Filter, 
     MoreHorizontal,
     ArrowUpRight,
-    MessageSquare
+    MessageSquare,
+    Reply
 } from "lucide-react";
+import TicketResponseDialog from "./TicketResponseDialog";
 
 export default function TicketsList() {
     const { tickets = [], updateTicketStatus, clients = [] } = useStore();
     const [searchQuery, setSearchQuery] = useState("");
+    const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+    const [isResponseDialogOpen, setIsResponseDialogOpen] = useState(false);
 
     // --- Stats Calculation ---
     const openTickets = tickets.filter(t => t.status === 'open').length;
@@ -225,9 +229,19 @@ export default function TicketsList() {
                                                     {/* Actions */}
                                                     <TableCell className="px-6 py-4 text-right">
                                                         <div className="flex items-center justify-end gap-2">
-                                                            <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-neutral-500 hover:text-white hover:bg-neutral-800">
-                                                                <ArrowUpRight className="w-4 h-4" />
-                                                            </Button>
+                                                            {ticket.status !== 'resolved' && (
+                                                                <Button 
+                                                                    size="sm" 
+                                                                    variant="ghost" 
+                                                                    onClick={() => {
+                                                                        setSelectedTicket(ticket);
+                                                                        setIsResponseDialogOpen(true);
+                                                                    }}
+                                                                    className="h-8 w-8 p-0 text-neutral-500 hover:text-white hover:bg-neutral-800"
+                                                                >
+                                                                    <Reply className="w-4 h-4" />
+                                                                </Button>
+                                                            )}
                                                             <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-neutral-500 hover:text-white hover:bg-neutral-800">
                                                                 <MoreHorizontal className="w-4 h-4" />
                                                             </Button>
@@ -243,6 +257,19 @@ export default function TicketsList() {
                     </CardContent>
                 </Card>
             </div>
+            
+            {/* Response Dialog */}
+            {selectedTicket && (
+                <TicketResponseDialog
+                    ticket={selectedTicket}
+                    clientName={clients.find(c => c.id === selectedTicket.clientId)?.name || 'Unknown'}
+                    isOpen={isResponseDialogOpen}
+                    onClose={() => {
+                        setIsResponseDialogOpen(false);
+                        setSelectedTicket(null);
+                    }}
+                />
+            )}
         </div>
     );
 }

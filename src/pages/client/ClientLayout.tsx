@@ -1,9 +1,10 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
 import { useStore } from "@/store";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { LogOut, ShieldCheck } from "lucide-react";
+import { LogOut, ShieldCheck, LayoutDashboard, FileText, Ticket, MessageSquare } from "lucide-react";
 import PageTransition from "@/components/PageTransition";
+import { cn } from "@/lib/utils";
 
 // Background Texture
 const NoiseTexture = () => (
@@ -15,6 +16,14 @@ const NoiseTexture = () => (
 export default function ClientLayout() {
     const { currentClientId, logoutClient } = useStore();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const navItems = [
+        { icon: LayoutDashboard, label: "Dashboard", path: "/client/portal" },
+        { icon: FileText, label: "New Project", path: "/client/portal/new-project" },
+        { icon: Ticket, label: "Support Ticket", path: "/client/portal/tickets" },
+        { icon: MessageSquare, label: "Feedback", path: "/client/portal/feedback" },
+    ];
 
     useEffect(() => {
         if (!currentClientId) {
@@ -77,11 +86,28 @@ export default function ClientLayout() {
 
             {/* ================= MAIN CONTENT ================= */}
             <main className="flex-1 relative z-10 pt-28 pb-12 px-4 md:px-8 w-full max-w-6xl mx-auto">
-                {/* Mobile ID Display (Only shows on small screens) */}
-                <div className="md:hidden mb-6 flex items-center justify-between bg-neutral-900/50 p-4 rounded border border-neutral-800">
-                    <span className="text-sm text-neutral-400">Project ID</span>
-                    <span className="font-mono text-white">{currentClientId}</span>
-                </div>
+                {/* Navigation Tabs */}
+                <nav className="mb-8 flex flex-wrap gap-2 border-b border-neutral-800 pb-4">
+                    {navItems.map((item) => {
+                        const isActive = location.pathname === item.path;
+                        return (
+                            <Link key={item.path} to={item.path}>
+                                <Button
+                                    variant="ghost"
+                                    className={cn(
+                                        "h-10 px-4 gap-2 rounded-sm transition-all",
+                                        isActive 
+                                            ? "bg-white text-black hover:bg-neutral-200" 
+                                            : "text-neutral-400 hover:text-white hover:bg-neutral-900"
+                                    )}
+                                >
+                                    <item.icon className="w-4 h-4" />
+                                    {item.label}
+                                </Button>
+                            </Link>
+                        );
+                    })}
+                </nav>
 
                 <PageTransition>
                     <Outlet />
