@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Project, ProjectStage } from "@/types";
 import { toast } from "sonner";
-import { Activity, BarChart3, Clock, CheckCircle2, Circle, Settings2, Sliders, ChevronRight } from "lucide-react";
+import { Activity, BarChart3, Clock, CheckCircle2, Circle, Settings2, Sliders, ChevronRight, Plus, Flag } from "lucide-react";
+import CreateProjectForm from "./CreateProjectForm";
 
 const STAGES: ProjectStage[] = [
     'Requirements Analysis',
@@ -19,7 +20,7 @@ const STAGES: ProjectStage[] = [
 ];
 
 export default function ProjectsList() {
-    const { clients, projects, updateProjectProgress } = useStore();
+    const { clients, projects, updateProjectProgress, markProjectComplete } = useStore();
     const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
     // For Update Dialog
@@ -35,10 +36,15 @@ export default function ProjectsList() {
         }
     };
 
+    const handleMarkComplete = (projectId: string) => {
+        markProjectComplete(projectId);
+        toast.success("Project Completed", { description: "All stages marked as complete." });
+    };
+
     // Helper to open dialog and pre-fill data
     const openUpdateDialog = (project: Project) => {
         setSelectedProject(project);
-        setEditStage(STAGES[0]); // Default or find active stage logic could go here
+        setEditStage(STAGES[0]);
         setEditProgress(0); 
         setIsDialogOpen(true);
     };
@@ -47,14 +53,17 @@ export default function ProjectsList() {
         <div className="space-y-8 animate-in fade-in duration-500">
             
             {/* Header */}
-            <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-light tracking-tight text-white">
-                    Project Operations
-                </h1>
-                <div className="flex items-center gap-2 text-xs font-mono text-neutral-500 uppercase tracking-widest">
-                    <Activity className="w-3 h-3" />
-                    <span>Active Workflows: {projects.length}</span>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h1 className="text-3xl font-light tracking-tight text-white mb-2">
+                        Project Operations
+                    </h1>
+                    <div className="flex items-center gap-2 text-xs font-mono text-neutral-500 uppercase tracking-widest">
+                        <Activity className="w-3 h-3" />
+                        <span>Active Workflows: {projects.length}</span>
+                    </div>
                 </div>
+                <CreateProjectForm />
             </div>
 
             <div className="grid gap-6">
@@ -83,21 +92,33 @@ export default function ProjectsList() {
                                     </div>
                                 </div>
                                 
-                                <Dialog open={isDialogOpen && selectedProject?.id === project.id} onOpenChange={(open) => {
-                                    if(!open) setIsDialogOpen(false);
-                                }}>
-                                    <DialogTrigger asChild>
+                                <div className="flex items-center gap-2">
+                                    {!project.isCompleted && (
                                         <Button 
                                             variant="outline" 
                                             size="sm" 
-                                            onClick={() => openUpdateDialog(project)}
-                                            className="bg-transparent border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-900 text-xs font-mono tracking-wider h-8"
+                                            onClick={() => handleMarkComplete(project.id)}
+                                            className="bg-emerald-950/20 border-emerald-900/50 text-emerald-500 hover:text-white hover:bg-emerald-900/30 text-xs font-mono tracking-wider h-8"
                                         >
-                                            <Settings2 className="w-3 h-3 mr-2" />
-                                            MODIFY_STATE
+                                            <Flag className="w-3 h-3 mr-2" />
+                                            MARK COMPLETE
                                         </Button>
-                                    </DialogTrigger>
-                                    
+                                    )}
+                                    <Dialog open={isDialogOpen && selectedProject?.id === project.id} onOpenChange={(open) => {
+                                        if(!open) setIsDialogOpen(false);
+                                    }}>
+                                        <DialogTrigger asChild>
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                onClick={() => openUpdateDialog(project)}
+                                                className="bg-transparent border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-900 text-xs font-mono tracking-wider h-8"
+                                            >
+                                                <Settings2 className="w-3 h-3 mr-2" />
+                                                MODIFY_STATE
+                                            </Button>
+                                        </DialogTrigger>
+                                                
                                     {/* --- UPDATE MODAL --- */}
                                     <DialogContent className="bg-[#050505] border-neutral-800 text-white sm:max-w-[450px] p-0">
                                         <DialogHeader className="p-6 border-b border-neutral-900 bg-neutral-950">
@@ -155,6 +176,7 @@ export default function ProjectsList() {
                                         </div>
                                     </DialogContent>
                                 </Dialog>
+                                </div>
                             </CardHeader>
 
                             <CardContent className="pt-6">

@@ -13,6 +13,7 @@ import ClientLayout from "@/pages/client/ClientLayout";
 import ClientDashboard from "@/pages/client/ClientDashboard";
 import ProjectForm from "@/pages/client/ProjectForm";
 import TicketForm from "@/pages/client/TicketForm";
+import FeedbackForm from "@/pages/client/FeedbackForm";
 
 function App() {
   return (
@@ -34,8 +35,9 @@ function App() {
         <Route path="/client" element={<ClientLogin />} />
         <Route path="/client/portal" element={<ClientLayout />}>
           <Route index element={<ClientDashboard />} />
-          <Route path="form" element={<ProjectForm />} />
+          <Route path="new-project" element={<ProjectForm />} />
           <Route path="tickets" element={<TicketForm />} />
+          <Route path="feedback" element={<FeedbackForm />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
