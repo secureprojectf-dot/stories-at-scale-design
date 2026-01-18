@@ -1,64 +1,81 @@
 import { useState } from "react";
-import { useStore } from "@/store";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { Client } from "@/types";
 import { toast } from "sonner";
-import { Users, Plus, Search, Terminal, Hash, Building2, Mail, CreditCard, RefreshCw } from "lucide-react";
+import { Users, Plus, Search, Terminal, Hash, Building2, Mail, CreditCard, RefreshCw, Loader2 } from "lucide-react";
+import { useClients, useProjects } from "@/hooks/useDatabase";
 
 export default function ClientsList() {
-    const { clients, addClient } = useStore();
+    const { clients, loading, addClient } = useClients();
+    const { projects } = useProjects();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [newClient, setNewClient] = useState({
         name: "",
         email: "",
-        phone: "",
-        companyName: "",
-        assignedId: "RED-" + Math.floor(1000 + Math.random() * 9000),
+        company: "",
+        assigned_id: "RED-" + Math.floor(1000 + Math.random() * 9000),
     });
 
     // Helper to regen ID
     const generateId = () => {
-        setNewClient(prev => ({ ...prev, assignedId: "RED-" + Math.floor(1000 + Math.random() * 9000) }));
+        setNewClient(prev => ({ ...prev, assigned_id: "RED-" + Math.floor(1000 + Math.random() * 9000) }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!newClient.name || !newClient.assignedId) {
+        if (!newClient.name || !newClient.assigned_id) {
             toast.error("Required Fields Missing", { description: "Client Name and ID are mandatory." });
             return;
         }
 
-        const client: Client = {
-            id: crypto.randomUUID(),
-            ...newClient,
-            projectIds: [],
-            createdAt: new Date().toISOString(),
-        };
+        setIsSubmitting(true);
 
-        addClient(client);
-        toast.success("Database Updated", { description: `Client ${newClient.name} added successfully.` });
-        setIsDialogOpen(false);
-        setNewClient({
-            name: "",
-            email: "",
-            phone: "",
-            companyName: "",
-            assignedId: "RED-" + Math.floor(1000 + Math.random() * 9000),
+        const result = await addClient({
+            name: newClient.name,
+            email: newClient.email,
+            company: newClient.company || null,
+            assigned_id: newClient.assigned_id,
         });
+
+        setIsSubmitting(false);
+
+        if (result) {
+            toast.success("Database Updated", { description: `Client ${newClient.name} added successfully.` });
+            setIsDialogOpen(false);
+            setNewClient({
+                name: "",
+                email: "",
+                company: "",
+                assigned_id: "RED-" + Math.floor(1000 + Math.random() * 9000),
+            });
+        }
+    };
+
+    // Get project count for each client
+    const getProjectCount = (clientId: string) => {
+        return projects.filter(p => p.client_id === clientId).length;
     };
 
     // Filter logic
     const filteredClients = clients.filter(client => 
         client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        client.assignedId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (client.companyName && client.companyName.toLowerCase().includes(searchQuery.toLowerCase()))
+        client.assigned_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (client.company && client.company.toLowerCase().includes(searchQuery.toLowerCase()))
     );
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-neutral-500" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -140,8 +157,8 @@ export default function ClientsList() {
                                         <div className="relative">
                                             <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
                                             <Input
-                                                value={newClient.companyName}
-                                                onChange={e => setNewClient({ ...newClient, companyName: e.target.value })}
+                                                value={newClient.company}
+                                                onChange={e => setNewClient({ ...newClient, company: e.target.value })}
                                                 placeholder="Optional"
                                                 className="pl-10 bg-neutral-900/50 border-neutral-800 focus:border-white focus:bg-black transition-colors rounded-sm h-11"
                                             />
@@ -154,8 +171,8 @@ export default function ClientsList() {
                                             <div className="relative flex-1">
                                                 <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
                                                 <Input
-                                                    value={newClient.assignedId}
-                                                    onChange={e => setNewClient({ ...newClient, assignedId: e.target.value })}
+                                                    value={newClient.assigned_id}
+                                                    onChange={e => setNewClient({ ...newClient, assigned_id: e.target.value })}
                                                     className="pl-10 bg-neutral-900/50 border-neutral-800 font-mono text-emerald-500 focus:border-white focus:bg-black transition-colors rounded-sm h-11"
                                                 />
                                             </div>
@@ -167,8 +184,19 @@ export default function ClientsList() {
                                 </div>
 
                                 <DialogFooter className="pt-4">
-                                    <Button type="submit" className="w-full bg-white hover:bg-neutral-200 text-black font-bold tracking-wider rounded-sm h-12">
-                                        EXECUTE SEQUENCE
+                                    <Button 
+                                        type="submit" 
+                                        disabled={isSubmitting}
+                                        className="w-full bg-white hover:bg-neutral-200 text-black font-bold tracking-wider rounded-sm h-12"
+                                    >
+                                        {isSubmitting ? (
+                                            <>
+                                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                PROCESSING...
+                                            </>
+                                        ) : (
+                                            'EXECUTE SEQUENCE'
+                                        )}
                                     </Button>
                                 </DialogFooter>
                             </form>
@@ -202,16 +230,16 @@ export default function ClientsList() {
                                 filteredClients.map((client) => (
                                     <TableRow key={client.id} className="border-neutral-900 hover:bg-neutral-900/30 transition-colors group">
                                         <TableCell className="font-mono text-xs font-medium text-white group-hover:text-emerald-400 transition-colors">
-                                            {client.assignedId}
+                                            {client.assigned_id}
                                         </TableCell>
                                         <TableCell className="text-sm text-neutral-300">
                                             {client.name}
                                         </TableCell>
                                         <TableCell className="text-sm text-neutral-400">
-                                            {client.companyName ? (
+                                            {client.company ? (
                                                 <span className="flex items-center gap-2">
                                                     <Building2 className="w-3 h-3 text-neutral-600" />
-                                                    {client.companyName}
+                                                    {client.company}
                                                 </span>
                                             ) : (
                                                 <span className="text-neutral-700 italic text-xs">--</span>
@@ -222,11 +250,11 @@ export default function ClientsList() {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <span className={`inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-sm text-xs font-mono ${
-                                                client.projectIds.length > 0 
+                                                getProjectCount(client.id) > 0 
                                                     ? "bg-neutral-800 text-white border border-neutral-700" 
                                                     : "text-neutral-600"
                                             }`}>
-                                                {client.projectIds.length}
+                                                {getProjectCount(client.id)}
                                             </span>
                                         </TableCell>
                                     </TableRow>

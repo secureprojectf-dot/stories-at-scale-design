@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { useStore } from "@/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { Project, ProjectStage } from "@/types";
 import { toast } from "sonner";
-import { Activity, BarChart3, Clock, CheckCircle2, Circle, Settings2, Sliders, ChevronRight, Plus, Flag } from "lucide-react";
+import { Activity, BarChart3, CheckCircle2, Circle, Settings2, Sliders, Flag, Loader2 } from "lucide-react";
 import CreateProjectForm from "./CreateProjectForm";
+import { useClients, useProjects, DbProject, DbProjectStage } from "@/hooks/useDatabase";
 
-const STAGES: ProjectStage[] = [
+const STAGES = [
     'Requirements Analysis',
     'Design & Prototyping',
     'Development',
@@ -20,34 +19,51 @@ const STAGES: ProjectStage[] = [
 ];
 
 export default function ProjectsList() {
-    const { clients, projects, updateProjectProgress, markProjectComplete } = useStore();
-    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+    const { clients } = useClients();
+    const { projects, loading, updateProjectProgress, markProjectComplete, fetchProjects } = useProjects();
+    const [selectedProject, setSelectedProject] = useState<(DbProject & { stages: DbProjectStage[] }) | null>(null);
 
     // For Update Dialog
-    const [editStage, setEditStage] = useState<ProjectStage>(STAGES[0]);
+    const [editStage, setEditStage] = useState<string>(STAGES[0]);
     const [editProgress, setEditProgress] = useState(0);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isUpdating, setIsUpdating] = useState(false);
 
-    const handleUpdate = () => {
+    const handleUpdate = async () => {
         if (selectedProject) {
-            updateProjectProgress(selectedProject.id, editStage, editProgress);
-            toast.success("System Updated", { description: "Project parameters synchronized." });
-            setIsDialogOpen(false);
+            setIsUpdating(true);
+            const success = await updateProjectProgress(selectedProject.id, editStage, editProgress);
+            setIsUpdating(false);
+            if (success) {
+                toast.success("System Updated", { description: "Project parameters synchronized." });
+                setIsDialogOpen(false);
+            }
         }
     };
 
-    const handleMarkComplete = (projectId: string) => {
-        markProjectComplete(projectId);
-        toast.success("Project Completed", { description: "All stages marked as complete." });
+    const handleMarkComplete = async (projectId: string) => {
+        const success = await markProjectComplete(projectId);
+        if (success) {
+            toast.success("Project Completed", { description: "All stages marked as complete." });
+        }
     };
 
     // Helper to open dialog and pre-fill data
-    const openUpdateDialog = (project: Project) => {
+    const openUpdateDialog = (project: DbProject & { stages: DbProjectStage[] }) => {
         setSelectedProject(project);
         setEditStage(STAGES[0]);
-        setEditProgress(0); 
+        const stage = project.stages.find(s => s.name === STAGES[0]);
+        setEditProgress(stage?.completion_percentage || 0); 
         setIsDialogOpen(true);
     };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-neutral-500" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -63,12 +79,13 @@ export default function ProjectsList() {
                         <span>Active Workflows: {projects.length}</span>
                     </div>
                 </div>
-                <CreateProjectForm />
+                <CreateProjectForm onProjectCreated={fetchProjects} />
             </div>
 
             <div className="grid gap-6">
                 {projects.map((project) => {
-                    const clientName = clients.find(c => c.id === project.clientId)?.name || "Unknown Entity";
+                    const client = clients.find(c => c.id === project.client_id);
+                    const clientName = client?.name || "Unknown Entity";
 
                     return (
                         <Card key={project.id} className="bg-[#0A0A0A] border-neutral-800 rounded-sm shadow-none overflow-hidden group hover:border-neutral-700 transition-colors">
@@ -79,21 +96,24 @@ export default function ProjectsList() {
                                             {project.title}
                                         </CardTitle>
                                         <span className={`text-[10px] font-mono px-2 py-0.5 rounded-sm border uppercase tracking-widest ${
-                                            project.isCompleted 
+                                            project.is_completed 
                                                 ? 'bg-emerald-950/30 border-emerald-900 text-emerald-500' 
                                                 : 'bg-blue-950/30 border-blue-900 text-blue-400'
                                         }`}>
-                                            {project.isCompleted ? 'Finished' : 'In Progress'}
+                                            {project.is_completed ? 'Finished' : 'In Progress'}
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-2 text-xs text-neutral-500 font-mono">
                                         <span>CLIENT_ID:</span>
                                         <span className="text-neutral-300 uppercase">{clientName}</span>
+                                        {client && (
+                                            <span className="text-emerald-500">({client.assigned_id})</span>
+                                        )}
                                     </div>
                                 </div>
                                 
                                 <div className="flex items-center gap-2">
-                                    {!project.isCompleted && (
+                                    {!project.is_completed && (
                                         <Button 
                                             variant="outline" 
                                             size="sm" 
@@ -132,9 +152,9 @@ export default function ProjectsList() {
                                             <div className="space-y-3">
                                                 <Label className="text-[10px] uppercase tracking-widest text-neutral-500">Target Stage</Label>
                                                 <Select onValueChange={(v) => {
-                                                    setEditStage(v as ProjectStage);
+                                                    setEditStage(v);
                                                     const s = project.stages.find(s => s.name === v);
-                                                    if (s) setEditProgress(s.completionPercentage);
+                                                    if (s) setEditProgress(s.completion_percentage);
                                                 }} defaultValue={STAGES[0]}>
                                                     <SelectTrigger className="bg-neutral-900 border-neutral-800 rounded-sm text-sm h-11 text-white focus:ring-0 focus:border-white transition-colors">
                                                         <SelectValue placeholder="Select Stage" />
@@ -170,8 +190,19 @@ export default function ProjectsList() {
                                                 </div>
                                             </div>
 
-                                            <Button onClick={handleUpdate} className="w-full bg-white hover:bg-neutral-200 text-black font-bold h-12 rounded-sm tracking-widest uppercase text-xs">
-                                                Commit Changes
+                                            <Button 
+                                                onClick={handleUpdate} 
+                                                disabled={isUpdating}
+                                                className="w-full bg-white hover:bg-neutral-200 text-black font-bold h-12 rounded-sm tracking-widest uppercase text-xs"
+                                            >
+                                                {isUpdating ? (
+                                                    <>
+                                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                                        UPDATING...
+                                                    </>
+                                                ) : (
+                                                    'Commit Changes'
+                                                )}
                                             </Button>
                                         </div>
                                     </DialogContent>
@@ -184,12 +215,12 @@ export default function ProjectsList() {
                                 <div className="space-y-2 mb-8">
                                     <div className="flex justify-between text-xs font-mono uppercase tracking-wider text-neutral-500">
                                         <span>Total Compilation</span>
-                                        <span className="text-white">{project.totalProgress}%</span>
+                                        <span className="text-white">{project.total_progress}%</span>
                                     </div>
                                     <div className="h-2 w-full bg-neutral-900 rounded-none relative overflow-hidden">
                                         <div 
                                             className="absolute top-0 left-0 h-full bg-white transition-all duration-700 ease-out" 
-                                            style={{ width: `${project.totalProgress}%` }} 
+                                            style={{ width: `${project.total_progress}%` }} 
                                         />
                                         {/* Scanline Effect */}
                                         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNCIgaGVpZ2h0PSI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0wIDBoNHYxSDB6IiBmaWxsPSIjMDAwIiBmaWxsLW9wYWNpdHk9Ii4yIi8+PC9zdmc+')] opacity-50" />
@@ -218,7 +249,7 @@ export default function ProjectsList() {
                                                     )}
                                                     
                                                     <span className={`text-[10px] font-mono ${isDone ? 'text-emerald-500' : isActive ? 'text-white' : 'text-neutral-700'}`}>
-                                                        {stage.completionPercentage}%
+                                                        {stage.completion_percentage}%
                                                     </span>
                                                 </div>
 

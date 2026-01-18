@@ -14,7 +14,213 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          assigned_id: string
+          company: string | null
+          created_at: string
+          email: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_id: string
+          company?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_id?: string
+          company?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      project_stages: {
+        Row: {
+          completion_percentage: number
+          created_at: string
+          id: string
+          name: string
+          project_id: string
+          sort_order: number
+          status: string
+        }
+        Insert: {
+          completion_percentage?: number
+          created_at?: string
+          id?: string
+          name: string
+          project_id: string
+          sort_order?: number
+          status?: string
+        }
+        Update: {
+          completion_percentage?: number
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string
+          sort_order?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_stages_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          client_id: string
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          is_completed: boolean
+          project_lead: string | null
+          start_date: string
+          title: string
+          total_progress: number
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_completed?: boolean
+          project_lead?: string | null
+          start_date?: string
+          title: string
+          total_progress?: number
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_completed?: boolean
+          project_lead?: string | null
+          start_date?: string
+          title?: string
+          total_progress?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      submissions: {
+        Row: {
+          client_id: string
+          data: Json
+          id: string
+          status: string
+          submitted_at: string
+          type: string
+        }
+        Insert: {
+          client_id: string
+          data?: Json
+          id?: string
+          status?: string
+          submitted_at?: string
+          type: string
+        }
+        Update: {
+          client_id?: string
+          data?: Json
+          id?: string
+          status?: string
+          submitted_at?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "submissions_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tickets: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          message: string
+          priority: string
+          project_id: string | null
+          response: string | null
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          message: string
+          priority?: string
+          project_id?: string | null
+          response?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          priority?: string
+          project_id?: string | null
+          response?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

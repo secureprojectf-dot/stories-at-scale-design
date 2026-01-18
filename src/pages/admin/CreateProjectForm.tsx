@@ -1,40 +1,42 @@
 import { useState } from "react";
-import { useStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, FolderGit2, Terminal } from "lucide-react";
-import type { Project, ProjectStage, StageStatus } from "@/types";
+import { Plus, FolderGit2, Terminal, Loader2 } from "lucide-react";
+import { useClients, useProjects } from "@/hooks/useDatabase";
 
-const DEFAULT_STAGES: StageStatus[] = [
-    { name: 'Requirements Analysis', status: 'pending', completionPercentage: 0 },
-    { name: 'Design & Prototyping', status: 'pending', completionPercentage: 0 },
-    { name: 'Development', status: 'pending', completionPercentage: 0 },
-    { name: 'Testing & QA', status: 'pending', completionPercentage: 0 },
-    { name: 'Deployment', status: 'pending', completionPercentage: 0 },
-    { name: 'Handover & Training', status: 'pending', completionPercentage: 0 },
+const DEFAULT_STAGES = [
+    { name: 'Requirements Analysis', status: 'pending' as const, completion_percentage: 0, sort_order: 0 },
+    { name: 'Design & Prototyping', status: 'pending' as const, completion_percentage: 0, sort_order: 1 },
+    { name: 'Development', status: 'pending' as const, completion_percentage: 0, sort_order: 2 },
+    { name: 'Testing & QA', status: 'pending' as const, completion_percentage: 0, sort_order: 3 },
+    { name: 'Deployment', status: 'pending' as const, completion_percentage: 0, sort_order: 4 },
+    { name: 'Handover & Training', status: 'pending' as const, completion_percentage: 0, sort_order: 5 },
 ];
 
 interface CreateProjectFormProps {
     trigger?: React.ReactNode;
+    onProjectCreated?: () => void;
 }
 
-export default function CreateProjectForm({ trigger }: CreateProjectFormProps) {
-    const { clients, addProject } = useStore();
+export default function CreateProjectForm({ trigger, onProjectCreated }: CreateProjectFormProps) {
+    const { clients } = useClients();
+    const { addProject } = useProjects();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         clientId: "",
         title: "",
         description: "",
-        startDate: new Date().toISOString().split('T')[0]
+        startDate: new Date().toISOString().split('T')[0],
+        projectLead: ""
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!formData.clientId || !formData.title.trim()) {
@@ -42,26 +44,36 @@ export default function CreateProjectForm({ trigger }: CreateProjectFormProps) {
             return;
         }
 
-        const newProject: Project = {
-            id: crypto.randomUUID(),
-            clientId: formData.clientId,
-            title: formData.title.trim(),
-            description: formData.description.trim(),
-            stages: [...DEFAULT_STAGES],
-            totalProgress: 0,
-            startDate: formData.startDate || new Date().toISOString(),
-            isCompleted: false
-        };
+        setIsSubmitting(true);
 
-        addProject(newProject);
-        toast.success("Project Created", { description: `${formData.title} has been initialized.` });
-        setIsDialogOpen(false);
-        setFormData({
-            clientId: "",
-            title: "",
-            description: "",
-            startDate: new Date().toISOString().split('T')[0]
-        });
+        const result = await addProject(
+            {
+                client_id: formData.clientId,
+                title: formData.title.trim(),
+                description: formData.description.trim() || null,
+                start_date: formData.startDate || new Date().toISOString(),
+                end_date: null,
+                total_progress: 0,
+                is_completed: false,
+                project_lead: formData.projectLead || null,
+            },
+            DEFAULT_STAGES
+        );
+
+        setIsSubmitting(false);
+
+        if (result) {
+            toast.success("Project Created", { description: `${formData.title} has been initialized.` });
+            setIsDialogOpen(false);
+            setFormData({
+                clientId: "",
+                title: "",
+                description: "",
+                startDate: new Date().toISOString().split('T')[0],
+                projectLead: ""
+            });
+            onProjectCreated?.();
+        }
     };
 
     return (
@@ -100,7 +112,7 @@ export default function CreateProjectForm({ trigger }: CreateProjectFormProps) {
                                 {clients.map(client => (
                                     <SelectItem key={client.id} value={client.id} className="focus:bg-neutral-800 focus:text-white cursor-pointer">
                                         <span className="flex items-center gap-2">
-                                            <span className="font-mono text-emerald-500">{client.assignedId}</span>
+                                            <span className="font-mono text-emerald-500">{client.assigned_id}</span>
                                             <span>-</span>
                                             <span>{client.name}</span>
                                         </span>
@@ -134,14 +146,25 @@ export default function CreateProjectForm({ trigger }: CreateProjectFormProps) {
                         />
                     </div>
 
-                    <div className="space-y-2">
-                        <Label className="text-[10px] uppercase tracking-widest text-neutral-500">Start Date</Label>
-                        <Input
-                            type="date"
-                            value={formData.startDate}
-                            onChange={e => setFormData({ ...formData, startDate: e.target.value })}
-                            className="bg-neutral-900/50 border-neutral-800 focus:border-white focus:bg-black transition-colors rounded-sm h-11"
-                        />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label className="text-[10px] uppercase tracking-widest text-neutral-500">Start Date</Label>
+                            <Input
+                                type="date"
+                                value={formData.startDate}
+                                onChange={e => setFormData({ ...formData, startDate: e.target.value })}
+                                className="bg-neutral-900/50 border-neutral-800 focus:border-white focus:bg-black transition-colors rounded-sm h-11"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label className="text-[10px] uppercase tracking-widest text-neutral-500">Project Lead</Label>
+                            <Input
+                                value={formData.projectLead}
+                                onChange={e => setFormData({ ...formData, projectLead: e.target.value })}
+                                placeholder="e.g. John Doe"
+                                className="bg-neutral-900/50 border-neutral-800 focus:border-white focus:bg-black transition-colors rounded-sm h-11"
+                            />
+                        </div>
                     </div>
 
                     <div className="p-4 bg-neutral-900/30 border border-neutral-800 rounded-sm">
@@ -151,8 +174,19 @@ export default function CreateProjectForm({ trigger }: CreateProjectFormProps) {
                     </div>
 
                     <DialogFooter className="pt-4">
-                        <Button type="submit" className="w-full bg-white hover:bg-neutral-200 text-black font-bold tracking-wider rounded-sm h-12">
-                            INITIALIZE PROJECT
+                        <Button 
+                            type="submit" 
+                            disabled={isSubmitting}
+                            className="w-full bg-white hover:bg-neutral-200 text-black font-bold tracking-wider rounded-sm h-12"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    PROCESSING...
+                                </>
+                            ) : (
+                                'INITIALIZE PROJECT'
+                            )}
                         </Button>
                     </DialogFooter>
                 </form>

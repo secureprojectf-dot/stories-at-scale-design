@@ -1,17 +1,25 @@
-import { useStore } from "@/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Check, Circle, Clock, FileText, ArrowUpRight, Calendar, AlertCircle } from "lucide-react";
+import { Check, Circle, Clock, FileText, ArrowUpRight, Calendar, AlertCircle, Loader2 } from "lucide-react";
+import { useProjects } from "@/hooks/useDatabase";
+import { useClientStore } from "@/store/clientStore";
+import { Link } from "react-router-dom";
 
 export default function ClientDashboard() {
-    const { currentClientId, clients, projects } = useStore();
+    const currentClient = useClientStore((state) => state.currentClient);
+    const { projects, loading } = useProjects(currentClient?.id);
 
-    const client = clients.find((c) => c.id === currentClientId);
-    const clientProjects = projects.filter((p) => p.clientId === currentClientId);
+    if (!currentClient) return <div className="text-white font-mono p-8">Initializing System...</div>;
 
-    if (!client) return <div className="text-white font-mono p-8">Initializing System...</div>;
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-neutral-500" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-10 animate-in fade-in duration-700">
@@ -24,7 +32,7 @@ export default function ClientDashboard() {
                         Client Dashboard
                     </span>
                     <h1 className="text-4xl md:text-5xl font-medium tracking-tight text-white">
-                        Hello, {client.name}
+                        Hello, {currentClient.name}
                     </h1>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-neutral-500 font-mono">
@@ -32,7 +40,7 @@ export default function ClientDashboard() {
                 </div>
             </div>
 
-            {clientProjects.length === 0 ? (
+            {projects.length === 0 ? (
                 <Card className="bg-neutral-900/20 border-neutral-800 border-dashed">
                     <CardContent className="p-12 text-center">
                         <div className="flex justify-center mb-4">
@@ -43,12 +51,12 @@ export default function ClientDashboard() {
                     </CardContent>
                 </Card>
             ) : (
-                <Tabs defaultValue={clientProjects[0].id} className="w-full space-y-8">
+                <Tabs defaultValue={projects[0].id} className="w-full space-y-8">
                     
                     {/* Project Selector (Only visible if >1 project) */}
-                    {clientProjects.length > 1 && (
+                    {projects.length > 1 && (
                         <TabsList className="bg-transparent p-0 border-b border-neutral-800 w-full justify-start h-auto rounded-none">
-                            {clientProjects.map(p => (
+                            {projects.map(p => (
                                 <TabsTrigger 
                                     key={p.id} 
                                     value={p.id}
@@ -60,7 +68,7 @@ export default function ClientDashboard() {
                         </TabsList>
                     )}
 
-                    {clientProjects.map((project) => (
+                    {projects.map((project) => (
                         <TabsContent key={project.id} value={project.id} className="space-y-8 focus-visible:ring-0">
                             
                             {/* Main Progress Hero Card */}
@@ -72,8 +80,8 @@ export default function ClientDashboard() {
                                                 <CardTitle className="text-2xl font-light text-white">{project.title}</CardTitle>
                                                 <p className="text-neutral-500 text-sm leading-relaxed max-w-md">{project.description}</p>
                                             </div>
-                                            <Badge variant="outline" className={`border-neutral-700 uppercase tracking-widest text-[10px] px-3 py-1 ${project.isCompleted ? "text-emerald-500 bg-emerald-500/10" : "text-blue-400 bg-blue-400/10"}`}>
-                                                {project.isCompleted ? "Completed" : "Active Project"}
+                                            <Badge variant="outline" className={`border-neutral-700 uppercase tracking-widest text-[10px] px-3 py-1 ${project.is_completed ? "text-emerald-500 bg-emerald-500/10" : "text-blue-400 bg-blue-400/10"}`}>
+                                                {project.is_completed ? "Completed" : "Active Project"}
                                             </Badge>
                                         </div>
                                     </CardHeader>
@@ -82,14 +90,14 @@ export default function ClientDashboard() {
                                             <div className="flex items-end justify-between">
                                                 <span className="text-sm font-mono text-neutral-500 uppercase tracking-wider">Overall Completion</span>
                                                 <span className="text-6xl font-medium text-white tracking-tighter">
-                                                    {project.totalProgress}%
+                                                    {project.total_progress}%
                                                 </span>
                                             </div>
                                             {/* Custom Thin Progress Bar */}
                                             <div className="h-1 w-full bg-neutral-900 mt-4 relative overflow-hidden">
                                                 <div 
                                                     className="absolute top-0 left-0 h-full bg-white transition-all duration-1000 ease-out" 
-                                                    style={{ width: `${project.totalProgress}%` }} 
+                                                    style={{ width: `${project.total_progress}%` }} 
                                                 />
                                                 {/* Animated Glow Effect */}
                                                 <div 
@@ -107,21 +115,21 @@ export default function ClientDashboard() {
                                             <span className="text-xs uppercase tracking-widest text-neutral-600 block mb-1">Start Date</span>
                                             <div className="flex items-center gap-2 text-white font-mono">
                                                 <Calendar className="w-4 h-4 text-neutral-500" />
-                                                {new Date(project.startDate).toLocaleDateString()}
+                                                {new Date(project.start_date).toLocaleDateString()}
                                             </div>
                                         </div>
                                         <div className="space-y-1 pb-4 border-b border-neutral-900">
                                             <span className="text-xs uppercase tracking-widest text-neutral-600 block mb-1">Target Deadline</span>
                                             <div className="flex items-center gap-2 text-white font-mono">
                                                 <Clock className="w-4 h-4 text-neutral-500" />
-                                                <span>TBD</span>
+                                                <span>{project.end_date ? new Date(project.end_date).toLocaleDateString() : 'TBD'}</span>
                                             </div>
                                         </div>
                                         <div className="space-y-1">
                                             <span className="text-xs uppercase tracking-widest text-neutral-600 block mb-1">Project Lead</span>
                                             <div className="flex items-center gap-2 text-white">
                                                 <div className="w-5 h-5 rounded-full bg-neutral-800 flex items-center justify-center text-[10px]">AD</div>
-                                                <span>Admin Team</span>
+                                                <span>{project.project_lead || 'Admin Team'}</span>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -140,7 +148,7 @@ export default function ClientDashboard() {
                                             {/* Vertical Connector Line */}
                                             <div className="absolute left-[19px] top-2 bottom-6 w-[1px] bg-neutral-800" />
 
-                                            {project.stages.map((stage, index) => {
+                                            {project.stages.map((stage) => {
                                                 const isCompleted = stage.status === 'completed';
                                                 const isActive = stage.status === 'in-progress';
 
@@ -159,9 +167,9 @@ export default function ClientDashboard() {
                                                         <div className={`flex flex-col pt-1 transition-opacity duration-300 ${!isCompleted && !isActive ? 'opacity-50' : 'opacity-100'}`}>
                                                             <div className="flex justify-between items-start pr-4">
                                                                 <h3 className="text-base font-medium text-white">{stage.name}</h3>
-                                                                {stage.completionPercentage > 0 && (
+                                                                {stage.completion_percentage > 0 && (
                                                                     <span className="font-mono text-xs text-neutral-500 bg-neutral-900 px-2 py-1 rounded-sm">
-                                                                        {stage.completionPercentage}%
+                                                                        {stage.completion_percentage}%
                                                                     </span>
                                                                 )}
                                                             </div>
@@ -184,20 +192,20 @@ export default function ClientDashboard() {
                                         </CardHeader>
                                         <CardContent className="p-0">
                                             <div className="flex flex-col divide-y divide-neutral-900">
-                                                <button className="group flex items-center justify-between w-full p-6 hover:bg-neutral-900/30 transition-colors text-left">
+                                                <Link to="/client/portal/project-request" className="group flex items-center justify-between w-full p-6 hover:bg-neutral-900/30 transition-colors text-left">
                                                     <div className="flex items-center gap-3">
                                                         <FileText className="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors" />
-                                                        <span className="text-sm font-medium text-neutral-300 group-hover:text-white">Upload Files</span>
+                                                        <span className="text-sm font-medium text-neutral-300 group-hover:text-white">New Project Request</span>
                                                     </div>
                                                     <ArrowUpRight className="w-4 h-4 text-neutral-600 group-hover:text-white transition-colors" />
-                                                </button>
-                                                <button className="group flex items-center justify-between w-full p-6 hover:bg-neutral-900/30 transition-colors text-left">
+                                                </Link>
+                                                <Link to="/client/portal/tickets" className="group flex items-center justify-between w-full p-6 hover:bg-neutral-900/30 transition-colors text-left">
                                                     <div className="flex items-center gap-3">
                                                         <AlertCircle className="w-5 h-5 text-neutral-500 group-hover:text-white transition-colors" />
                                                         <span className="text-sm font-medium text-neutral-300 group-hover:text-white">Contact Support</span>
                                                     </div>
                                                     <ArrowUpRight className="w-4 h-4 text-neutral-600 group-hover:text-white transition-colors" />
-                                                </button>
+                                                </Link>
                                             </div>
                                         </CardContent>
                                     </Card>
