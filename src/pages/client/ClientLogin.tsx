@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useStore } from "@/store";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, KeyRound, ShieldCheck, Mail, Info, Smartphone } from "lucide-react";
+import { useClients } from "@/hooks/useDatabase";
+import { useClientStore } from "@/store/clientStore";
 
 // --- Visual Assets ---
 const NoiseTexture = () => (
@@ -15,23 +16,31 @@ const NoiseTexture = () => (
 
 export default function ClientLogin() {
     const [assignedId, setAssignedId] = useState("");
-    const loginClient = useStore((state) => state.loginClient);
-    const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+    const { loginClient } = useClients();
+    const setCurrentClient = useClientStore((state) => state.setCurrentClient);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
         
-        setTimeout(() => {
-            if (loginClient(assignedId)) {
+        try {
+            const client = await loginClient(assignedId.toUpperCase());
+            
+            if (client) {
+                setCurrentClient(client);
                 toast.success("Access Granted");
                 navigate("/client/portal");
             } else {
                 toast.error("Access Denied", { description: "Invalid Client ID" });
-                setIsLoading(false);
             }
-        }, 800);
+        } catch (error) {
+            console.error('Login error:', error);
+            toast.error("Login Failed", { description: "Please try again later." });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

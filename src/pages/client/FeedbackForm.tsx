@@ -1,17 +1,20 @@
 import { useState } from "react";
-import { useStore } from "@/store";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { MessageSquare, Send, CheckCircle2, Star } from "lucide-react";
+import { MessageSquare, Send, CheckCircle2, Star, Loader2 } from "lucide-react";
+import { useSubmissions, useProjects } from "@/hooks/useDatabase";
+import { useClientStore } from "@/store/clientStore";
 
 export default function FeedbackForm() {
-    const { currentClientId, projects, addSubmission } = useStore();
+    const currentClient = useClientStore((state) => state.currentClient);
+    const { projects } = useProjects(currentClient?.id);
+    const { addSubmission } = useSubmissions(currentClient?.id);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [rating, setRating] = useState(0);
     const [formData, setFormData] = useState({
         projectId: "",
@@ -20,29 +23,30 @@ export default function FeedbackForm() {
         suggestions: ""
     });
 
-    const clientProjects = projects.filter(p => p.clientId === currentClientId);
-
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!currentClientId) return;
+        if (!currentClient) return;
 
         if (!formData.feedback.trim()) {
             toast.error("Required field missing", { description: "Please provide your feedback." });
             return;
         }
 
-        const submission = {
-            id: crypto.randomUUID(),
-            clientId: currentClientId,
-            type: 'feedback' as const,
-            data: { ...formData, rating },
-            submittedAt: new Date().toISOString(),
-            status: 'pending' as const
-        };
+        setIsSubmitting(true);
 
-        addSubmission(submission);
-        setIsSubmitted(true);
-        toast.success("Feedback submitted!", { description: "Thank you for your valuable input." });
+        const result = await addSubmission({
+            client_id: currentClient.id,
+            type: 'feedback',
+            data: { ...formData, rating: String(rating) },
+            status: 'pending'
+        });
+
+        setIsSubmitting(false);
+
+        if (result) {
+            setIsSubmitted(true);
+            toast.success("Feedback submitted!", { description: "Thank you for your valuable input." });
+        }
     };
 
     if (isSubmitted) {
@@ -115,7 +119,7 @@ export default function FeedbackForm() {
                             </div>
                         </div>
 
-                        {clientProjects.length > 0 && (
+                        {projects.length > 0 && (
                             <div className="space-y-2">
                                 <Label className="text-xs uppercase tracking-widest text-neutral-500">
                                     Related Project (Optional)
@@ -128,7 +132,7 @@ export default function FeedbackForm() {
                                         <SelectValue placeholder="Select a project" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-neutral-900 border-neutral-800 text-neutral-300">
-                                        {clientProjects.map(p => (
+                                        {projects.map(p => (
                                             <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
                                         ))}
                                     </SelectContent>
@@ -165,29 +169,29 @@ export default function FeedbackForm() {
                                 id="feedback"
                                 value={formData.feedback}
                                 onChange={e => setFormData({ ...formData, feedback: e.target.value })}
-                                placeholder="Share your experience, what went well, or areas for improvement..."
+                                placeholder="Share your experience..."
                                 className="min-h-[120px] bg-neutral-900/50 border-neutral-800 focus:border-white focus:bg-black transition-colors rounded-sm resize-none"
                                 required
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="suggestions" className="text-xs uppercase tracking-widest text-neutral-500">
-                                Suggestions for Improvement
-                            </Label>
-                            <Textarea
-                                id="suggestions"
-                                value={formData.suggestions}
-                                onChange={e => setFormData({ ...formData, suggestions: e.target.value })}
-                                placeholder="Any suggestions on how we can serve you better..."
-                                className="min-h-[80px] bg-neutral-900/50 border-neutral-800 focus:border-white focus:bg-black transition-colors rounded-sm resize-none"
-                            />
-                        </div>
-
                         <div className="pt-4">
-                            <Button type="submit" className="w-full bg-white hover:bg-neutral-200 text-black font-bold h-12 rounded-sm tracking-wider uppercase text-xs">
-                                <Send className="w-4 h-4 mr-2" />
-                                Submit Feedback
+                            <Button 
+                                type="submit" 
+                                disabled={isSubmitting}
+                                className="w-full bg-white hover:bg-neutral-200 text-black font-bold h-12 rounded-sm tracking-wider uppercase text-xs"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        SUBMITTING...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="w-4 h-4 mr-2" />
+                                        Submit Feedback
+                                    </>
+                                )}
                             </Button>
                         </div>
                     </form>

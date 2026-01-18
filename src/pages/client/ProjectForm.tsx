@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -7,42 +6,48 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { FileText, Send, CheckCircle2 } from "lucide-react";
+import { FileText, Send, CheckCircle2, Loader2 } from "lucide-react";
+import { useSubmissions } from "@/hooks/useDatabase";
+import { useClientStore } from "@/store/clientStore";
 
 export default function ProjectForm() {
-    const { currentClientId, addSubmission } = useStore();
+    const currentClient = useClientStore((state) => state.currentClient);
+    const { addSubmission } = useSubmissions(currentClient?.id);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         title: "",
         description: "",
         budget: "",
         timeline: "",
         projectType: "",
-        requirements: "",
-        attachments: ""
+        requirements: ""
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!currentClientId) return;
+        if (!currentClient) return;
 
         if (!formData.title.trim() || !formData.description.trim()) {
             toast.error("Required fields missing", { description: "Please fill in title and description." });
             return;
         }
 
-        const submission = {
-            id: crypto.randomUUID(),
-            clientId: currentClientId,
-            type: 'project_request' as const,
-            data: formData,
-            submittedAt: new Date().toISOString(),
-            status: 'pending' as const
-        };
+        setIsSubmitting(true);
 
-        addSubmission(submission);
-        setIsSubmitted(true);
-        toast.success("Project request submitted!", { description: "Our team will review your submission shortly." });
+        const result = await addSubmission({
+            client_id: currentClient.id,
+            type: 'project_request',
+            data: formData,
+            status: 'pending'
+        });
+
+        setIsSubmitting(false);
+
+        if (result) {
+            setIsSubmitted(true);
+            toast.success("Project request submitted!", { description: "Our team will review your submission shortly." });
+        }
     };
 
     if (isSubmitted) {
@@ -62,7 +67,7 @@ export default function ProjectForm() {
                         <Button 
                             onClick={() => {
                                 setIsSubmitted(false);
-                                setFormData({ title: "", description: "", budget: "", timeline: "", projectType: "", requirements: "", attachments: "" });
+                                setFormData({ title: "", description: "", budget: "", timeline: "", projectType: "", requirements: "" });
                             }}
                             variant="outline"
                             className="bg-transparent border-neutral-800 text-neutral-400 hover:text-white hover:bg-neutral-900"
@@ -142,19 +147,6 @@ export default function ProjectForm() {
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <Label htmlFor="requirements" className="text-xs uppercase tracking-widest text-neutral-500">
-                                Specific Requirements
-                            </Label>
-                            <Textarea
-                                id="requirements"
-                                value={formData.requirements}
-                                onChange={e => setFormData({ ...formData, requirements: e.target.value })}
-                                placeholder="Any specific technologies, integrations, or features required..."
-                                className="min-h-[80px] bg-neutral-900/50 border-neutral-800 focus:border-white focus:bg-black transition-colors rounded-sm resize-none"
-                            />
-                        </div>
-
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="budget" className="text-xs uppercase tracking-widest text-neutral-500">
@@ -173,7 +165,6 @@ export default function ProjectForm() {
                                         <SelectItem value="10k-25k">$10,000 - $25,000</SelectItem>
                                         <SelectItem value="25k-50k">$25,000 - $50,000</SelectItem>
                                         <SelectItem value="50k-plus">$50,000+</SelectItem>
-                                        <SelectItem value="discuss">Let's Discuss</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -200,9 +191,22 @@ export default function ProjectForm() {
                         </div>
 
                         <div className="pt-4">
-                            <Button type="submit" className="w-full bg-white hover:bg-neutral-200 text-black font-bold h-12 rounded-sm tracking-wider uppercase text-xs">
-                                <Send className="w-4 h-4 mr-2" />
-                                Submit Request
+                            <Button 
+                                type="submit" 
+                                disabled={isSubmitting}
+                                className="w-full bg-white hover:bg-neutral-200 text-black font-bold h-12 rounded-sm tracking-wider uppercase text-xs"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        SUBMITTING...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="w-4 h-4 mr-2" />
+                                        Submit Request
+                                    </>
+                                )}
                             </Button>
                         </div>
                     </form>
