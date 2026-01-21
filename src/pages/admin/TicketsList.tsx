@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { useStore } from "@/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { Ticket } from "@/types";
+import { useTickets, useClients, DbTicket } from "@/hooks/useDatabase";
 import { 
     Ticket as TicketIcon, 
     AlertCircle, 
@@ -15,28 +14,30 @@ import {
     Search, 
     Filter, 
     MoreHorizontal,
-    ArrowUpRight,
     MessageSquare,
-    Reply
+    Reply,
+    Loader2
 } from "lucide-react";
 import TicketResponseDialog from "./TicketResponseDialog";
 
 export default function TicketsList() {
-    const { tickets = [], updateTicketStatus, clients = [] } = useStore();
+    const { tickets, loading, updateTicketStatus, respondToTicket } = useTickets();
+    const { clients } = useClients();
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+    const [selectedTicket, setSelectedTicket] = useState<DbTicket | null>(null);
     const [isResponseDialogOpen, setIsResponseDialogOpen] = useState(false);
 
     // --- Stats Calculation ---
     const openTickets = tickets.filter(t => t.status === 'open').length;
-    const criticalTickets = tickets.filter(t => t.priority === 'high' && t.status !== 'resolved').length;
+    const criticalTickets = tickets.filter(t => (t.priority === 'high' || t.priority === 'urgent') && t.status !== 'resolved').length;
     const resolvedRate = tickets.length > 0 
         ? Math.round((tickets.filter(t => t.status === 'resolved').length / tickets.length) * 100) 
         : 100;
 
     // --- Filter Logic ---
     const filteredTickets = tickets.filter(ticket => {
-        const clientName = clients.find(c => c.id === ticket.clientId)?.name || "";
+        const client = clients.find(c => c.id === ticket.client_id);
+        const clientName = client?.name || "";
         const searchLower = searchQuery.toLowerCase();
         return (
             ticket.subject.toLowerCase().includes(searchLower) ||
@@ -48,7 +49,8 @@ export default function TicketsList() {
     // --- Helper for Priority Styles ---
     const getPriorityStyle = (priority: string) => {
         switch (priority) {
-            case 'high': return "border-red-900 text-red-500 bg-red-950/20";
+            case 'urgent': return "border-red-900 text-red-500 bg-red-950/20";
+            case 'high': return "border-orange-900 text-orange-500 bg-orange-950/20";
             case 'medium': return "border-amber-900 text-amber-500 bg-amber-950/20";
             case 'low': return "border-blue-900 text-blue-500 bg-blue-950/20";
             default: return "border-neutral-800 text-neutral-500";
@@ -61,9 +63,24 @@ export default function TicketsList() {
             case 'open': return "text-white bg-neutral-800 border-neutral-700";
             case 'in-progress': return "text-blue-400 bg-blue-950/30 border-blue-900";
             case 'resolved': return "text-emerald-500 bg-emerald-950/30 border-emerald-900";
+            case 'closed': return "text-neutral-500 bg-neutral-900 border-neutral-800";
             default: return "text-neutral-500";
         }
     };
+
+    const handleRespond = async (ticketId: string, response: string) => {
+        await respondToTicket(ticketId, response);
+        setIsResponseDialogOpen(false);
+        setSelectedTicket(null);
+    };
+
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-neutral-500" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
@@ -127,7 +144,7 @@ export default function TicketsList() {
                             placeholder="SEARCH TICKETS..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10 bg-[#0A0A0A] border-neutral-800 rounded-sm text-xs font-mono text-white placeholder:text-neutral-700 focus:ring-0 focus:border-white transition-colors h-10"
+                            className="pl-10 bg-[#0A0A0A] border-neutral-800 rounded-sm text-xs font-mono placeholder:text-neutral-700 focus:ring-0 focus:border-white transition-colors h-10"
                         />
                     </div>
                     <Button variant="outline" className="h-10 w-10 p-0 border-neutral-800 bg-[#0A0A0A] text-neutral-500 hover:text-white">
@@ -176,7 +193,8 @@ export default function TicketsList() {
                                     </TableHeader>
                                     <TableBody>
                                         {filteredTickets.map(ticket => {
-                                            const clientName = clients.find(c => c.id === ticket.clientId)?.name || 'Unknown';
+                                            const client = clients.find(c => c.id === ticket.client_id);
+                                            const clientName = client?.name || 'Unknown';
                                             return (
                                                 <TableRow key={ticket.id} className="border-b border-neutral-900 hover:bg-neutral-900/40 transition-colors group">
                                                     
@@ -184,7 +202,7 @@ export default function TicketsList() {
                                                     <TableCell className="px-6 py-4">
                                                         <Select
                                                             defaultValue={ticket.status}
-                                                            onValueChange={(v) => updateTicketStatus(ticket.id, v as Ticket['status'])}
+                                                            onValueChange={(v) => updateTicketStatus(ticket.id, v as DbTicket['status'])}
                                                         >
                                                             <SelectTrigger className={`w-[130px] h-8 text-[10px] uppercase font-bold tracking-wider rounded-sm border transition-all ${getStatusStyle(ticket.status)}`}>
                                                                 <SelectValue />
@@ -193,6 +211,7 @@ export default function TicketsList() {
                                                                 <SelectItem value="open" className="text-xs focus:bg-neutral-800 focus:text-white">OPEN</SelectItem>
                                                                 <SelectItem value="in-progress" className="text-xs focus:bg-neutral-800 focus:text-white">IN PROGRESS</SelectItem>
                                                                 <SelectItem value="resolved" className="text-xs focus:bg-neutral-800 focus:text-white">RESOLVED</SelectItem>
+                                                                <SelectItem value="closed" className="text-xs focus:bg-neutral-800 focus:text-white">CLOSED</SelectItem>
                                                             </SelectContent>
                                                         </Select>
                                                     </TableCell>
@@ -213,7 +232,7 @@ export default function TicketsList() {
                                                     {/* Priority Badge */}
                                                     <TableCell className="px-6 py-4">
                                                         <Badge variant="outline" className={`rounded-sm text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border ${getPriorityStyle(ticket.priority)}`}>
-                                                            {ticket.priority === 'high' && <AlertCircle className="w-3 h-3 mr-1" />}
+                                                            {(ticket.priority === 'high' || ticket.priority === 'urgent') && <AlertCircle className="w-3 h-3 mr-1" />}
                                                             {ticket.priority}
                                                         </Badge>
                                                     </TableCell>
@@ -222,14 +241,14 @@ export default function TicketsList() {
                                                     <TableCell className="px-6 py-4">
                                                         <div className="flex items-center gap-2 text-xs text-neutral-500 font-mono">
                                                             <Clock className="w-3 h-3" />
-                                                            {new Date(ticket.createdAt).toLocaleDateString()}
+                                                            {new Date(ticket.created_at).toLocaleDateString()}
                                                         </div>
                                                     </TableCell>
 
                                                     {/* Actions */}
                                                     <TableCell className="px-6 py-4 text-right">
                                                         <div className="flex items-center justify-end gap-2">
-                                                            {ticket.status !== 'resolved' && (
+                                                            {ticket.status !== 'resolved' && ticket.status !== 'closed' && (
                                                                 <Button 
                                                                     size="sm" 
                                                                     variant="ghost" 
@@ -262,12 +281,13 @@ export default function TicketsList() {
             {selectedTicket && (
                 <TicketResponseDialog
                     ticket={selectedTicket}
-                    clientName={clients.find(c => c.id === selectedTicket.clientId)?.name || 'Unknown'}
+                    clientName={clients.find(c => c.id === selectedTicket.client_id)?.name || 'Unknown'}
                     isOpen={isResponseDialogOpen}
                     onClose={() => {
                         setIsResponseDialogOpen(false);
                         setSelectedTicket(null);
                     }}
+                    onRespond={handleRespond}
                 />
             )}
         </div>
