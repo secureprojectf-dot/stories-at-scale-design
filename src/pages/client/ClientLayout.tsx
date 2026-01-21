@@ -1,5 +1,5 @@
 import { Outlet, useNavigate, Link, useLocation } from "react-router-dom";
-import { useStore } from "@/store";
+import { useClientStore } from "@/store/clientStore";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { LogOut, ShieldCheck, LayoutDashboard, FileText, Ticket, MessageSquare } from "lucide-react";
@@ -14,29 +14,30 @@ const NoiseTexture = () => (
 );
 
 export default function ClientLayout() {
-    const { currentClientId, logoutClient } = useStore();
+    const currentClient = useClientStore((state) => state.currentClient);
+    const logout = useClientStore((state) => state.logout);
     const navigate = useNavigate();
     const location = useLocation();
 
     const navItems = [
         { icon: LayoutDashboard, label: "Dashboard", path: "/client/portal" },
-        { icon: FileText, label: "New Project", path: "/client/portal/new-project" },
+        { icon: FileText, label: "New Project", path: "/client/portal/project-request" },
         { icon: Ticket, label: "Support Ticket", path: "/client/portal/tickets" },
         { icon: MessageSquare, label: "Feedback", path: "/client/portal/feedback" },
     ];
 
     useEffect(() => {
-        if (!currentClientId) {
+        if (!currentClient) {
             navigate("/client");
         }
-    }, [currentClientId, navigate]);
+    }, [currentClient, navigate]);
 
     const handleLogout = () => {
-        logoutClient();
+        logout();
         navigate("/client");
     };
 
-    if (!currentClientId) return null;
+    if (!currentClient) return null;
 
     return (
         <div className="flex flex-col min-h-screen bg-[#030303] text-white font-sans selection:bg-white selection:text-black">
@@ -59,7 +60,7 @@ export default function ClientLayout() {
                     <div className="hidden md:flex items-center gap-2 text-sm text-neutral-400">
                         <span>Project ID:</span>
                         <span className="text-white font-mono bg-neutral-900 px-2 py-1 rounded-sm border border-neutral-800">
-                            {currentClientId}
+                            {currentClient.assigned_id}
                         </span>
                     </div>
                 </div>
