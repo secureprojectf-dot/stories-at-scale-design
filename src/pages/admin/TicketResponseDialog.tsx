@@ -1,39 +1,41 @@
 import { useState } from "react";
-import { useStore } from "@/store";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { MessageSquare, Send, Clock, User, AlertCircle } from "lucide-react";
-import type { Ticket } from "@/types";
+import { MessageSquare, Send, Clock, User, AlertCircle, Loader2 } from "lucide-react";
+import type { DbTicket } from "@/hooks/useDatabase";
 import { Badge } from "@/components/ui/badge";
 
 interface TicketResponseDialogProps {
-    ticket: Ticket;
+    ticket: DbTicket;
     clientName: string;
     isOpen: boolean;
     onClose: () => void;
+    onRespond: (ticketId: string, response: string) => Promise<void>;
 }
 
-export default function TicketResponseDialog({ ticket, clientName, isOpen, onClose }: TicketResponseDialogProps) {
-    const { respondToTicket } = useStore();
+export default function TicketResponseDialog({ ticket, clientName, isOpen, onClose, onRespond }: TicketResponseDialogProps) {
     const [response, setResponse] = useState(ticket.response || "");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!response.trim()) {
             toast.error("Response required", { description: "Please enter a response before submitting." });
             return;
         }
 
-        respondToTicket(ticket.id, response.trim());
+        setIsSubmitting(true);
+        await onRespond(ticket.id, response.trim());
         toast.success("Response sent", { description: "Ticket has been marked as resolved." });
-        onClose();
+        setIsSubmitting(false);
     };
 
     const getPriorityStyle = (priority: string) => {
         switch (priority) {
-            case 'high': return "border-red-900 text-red-500 bg-red-950/20";
+            case 'urgent': return "border-red-900 text-red-500 bg-red-950/20";
+            case 'high': return "border-orange-900 text-orange-500 bg-orange-950/20";
             case 'medium': return "border-amber-900 text-amber-500 bg-amber-950/20";
             case 'low': return "border-blue-900 text-blue-500 bg-blue-950/20";
             default: return "border-neutral-800 text-neutral-500";
@@ -62,10 +64,10 @@ export default function TicketResponseDialog({ ticket, clientName, isOpen, onClo
                         </div>
                         <div className="flex items-center gap-2 text-neutral-400">
                             <Clock className="w-4 h-4" />
-                            <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
+                            <span>{new Date(ticket.created_at).toLocaleDateString()}</span>
                         </div>
                         <Badge variant="outline" className={`rounded-sm text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border ${getPriorityStyle(ticket.priority)}`}>
-                            {ticket.priority === 'high' && <AlertCircle className="w-3 h-3 mr-1" />}
+                            {(ticket.priority === 'high' || ticket.priority === 'urgent') && <AlertCircle className="w-3 h-3 mr-1" />}
                             {ticket.priority}
                         </Badge>
                     </div>
@@ -74,7 +76,7 @@ export default function TicketResponseDialog({ ticket, clientName, isOpen, onClo
                     <div className="space-y-2">
                         <Label className="text-[10px] uppercase tracking-widest text-neutral-500">Issue Description</Label>
                         <div className="p-4 bg-neutral-900/50 border border-neutral-800 rounded-sm">
-                            <p className="text-sm text-neutral-300 whitespace-pre-wrap">{ticket.description}</p>
+                            <p className="text-sm text-neutral-300 whitespace-pre-wrap">{ticket.message}</p>
                         </div>
                     </div>
 
@@ -98,9 +100,22 @@ export default function TicketResponseDialog({ ticket, clientName, isOpen, onClo
                     >
                         Cancel
                     </Button>
-                    <Button onClick={handleSubmit} className="bg-white hover:bg-neutral-200 text-black font-bold tracking-wider rounded-sm px-6">
-                        <Send className="w-4 h-4 mr-2" />
-                        Send Response
+                    <Button 
+                        onClick={handleSubmit} 
+                        disabled={isSubmitting}
+                        className="bg-white hover:bg-neutral-200 text-black font-bold tracking-wider rounded-sm px-6"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                Sending...
+                            </>
+                        ) : (
+                            <>
+                                <Send className="w-4 h-4 mr-2" />
+                                Send Response
+                            </>
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>
