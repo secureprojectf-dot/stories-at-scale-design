@@ -2,24 +2,35 @@ import { useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Users, Plus, Search, Terminal, Hash, Building2, Mail, CreditCard, RefreshCw, Loader2 } from "lucide-react";
-import { useClients, useProjects } from "@/hooks/useDatabase";
+import { Users, Plus, Search, Terminal, Hash, Building2, Mail, CreditCard, RefreshCw, Loader2, Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import { useClients, useProjects, DbClient } from "@/hooks/useDatabase";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function ClientsList() {
-    const { clients, loading, addClient } = useClients();
+    const { clients, loading, addClient, fetchClients } = useClients();
     const { projects } = useProjects();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [selectedClient, setSelectedClient] = useState<DbClient | null>(null);
     const [newClient, setNewClient] = useState({
         name: "",
         email: "",
         company: "",
         assigned_id: "RED-" + Math.floor(1000 + Math.random() * 9000),
+    });
+    const [editClient, setEditClient] = useState({
+        name: "",
+        email: "",
+        company: "",
+        assigned_id: "",
     });
 
     // Helper to regen ID
@@ -55,6 +66,73 @@ export default function ClientsList() {
                 assigned_id: "RED-" + Math.floor(1000 + Math.random() * 9000),
             });
         }
+    };
+
+    const handleEditSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedClient || !editClient.name || !editClient.assigned_id) {
+            toast.error("Required Fields Missing");
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        const { error } = await supabase
+            .from('clients')
+            .update({
+                name: editClient.name,
+                email: editClient.email,
+                company: editClient.company || null,
+                assigned_id: editClient.assigned_id,
+            })
+            .eq('id', selectedClient.id);
+
+        setIsSubmitting(false);
+
+        if (error) {
+            toast.error("Update Failed", { description: error.message });
+        } else {
+            toast.success("Client Updated", { description: `${editClient.name} updated successfully.` });
+            setIsEditDialogOpen(false);
+            fetchClients();
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!selectedClient) return;
+
+        setIsSubmitting(true);
+
+        const { error } = await supabase
+            .from('clients')
+            .delete()
+            .eq('id', selectedClient.id);
+
+        setIsSubmitting(false);
+
+        if (error) {
+            toast.error("Delete Failed", { description: error.message });
+        } else {
+            toast.success("Client Deleted", { description: `${selectedClient.name} removed from database.` });
+            setIsDeleteDialogOpen(false);
+            fetchClients();
+        }
+    };
+
+    const openEditDialog = (client: DbClient) => {
+        setSelectedClient(client);
+        setEditClient({
+            name: client.name,
+            email: client.email,
+            company: client.company || "",
+            assigned_id: client.assigned_id,
+        });
+        setIsEditDialogOpen(true);
+    };
+
+    const openDeleteDialog = (client: DbClient) => {
+        setSelectedClient(client);
+        setIsDeleteDialogOpen(true);
     };
 
     // Get project count for each client
@@ -111,7 +189,7 @@ export default function ClientsList() {
                             </Button>
                         </DialogTrigger>
                         
-                        {/* --- MODAL CONTENT --- */}
+                        {/* --- CREATE MODAL --- */}
                         <DialogContent className="bg-[#050505] border-neutral-800 text-white sm:max-w-[500px] p-0 overflow-hidden">
                             <DialogHeader className="p-6 border-b border-neutral-900 bg-neutral-950/50">
                                 <div className="flex items-center gap-2 mb-2">
@@ -205,6 +283,128 @@ export default function ClientsList() {
                 </div>
             </div>
 
+            {/* Edit Dialog */}
+            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                <DialogContent className="bg-[#050505] border-neutral-800 text-white sm:max-w-[500px] p-0 overflow-hidden">
+                    <DialogHeader className="p-6 border-b border-neutral-900 bg-neutral-950/50">
+                        <div className="flex items-center gap-2 mb-2">
+                            <div className="p-1 bg-neutral-900 rounded border border-neutral-800">
+                                <Pencil className="w-4 h-4 text-white" />
+                            </div>
+                            <span className="text-[10px] font-mono text-neutral-500 uppercase">CMD: UPDATE_ENTRY</span>
+                        </div>
+                        <DialogTitle className="text-xl font-medium tracking-tight">Modify Client</DialogTitle>
+                    </DialogHeader>
+
+                    <form onSubmit={handleEditSubmit} className="p-6 space-y-5">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2 col-span-2">
+                                <Label className="text-[10px] uppercase tracking-widest text-neutral-500">Legal Entity Name</Label>
+                                <div className="relative">
+                                    <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+                                    <Input
+                                        value={editClient.name}
+                                        onChange={e => setEditClient({ ...editClient, name: e.target.value })}
+                                        placeholder="e.g. Acme Industries Ltd."
+                                        className="pl-10 bg-neutral-900/50 border-neutral-800 focus:border-white focus:bg-black transition-colors rounded-sm h-11"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2 col-span-2">
+                                <Label className="text-[10px] uppercase tracking-widest text-neutral-500">Corporate Email</Label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+                                    <Input
+                                        value={editClient.email}
+                                        onChange={e => setEditClient({ ...editClient, email: e.target.value })}
+                                        placeholder="contact@company.com"
+                                        className="pl-10 bg-neutral-900/50 border-neutral-800 focus:border-white focus:bg-black transition-colors rounded-sm h-11"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-[10px] uppercase tracking-widest text-neutral-500">Company</Label>
+                                <div className="relative">
+                                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+                                    <Input
+                                        value={editClient.company}
+                                        onChange={e => setEditClient({ ...editClient, company: e.target.value })}
+                                        placeholder="Optional"
+                                        className="pl-10 bg-neutral-900/50 border-neutral-800 focus:border-white focus:bg-black transition-colors rounded-sm h-11"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label className="text-[10px] uppercase tracking-widest text-neutral-500">System ID</Label>
+                                <div className="relative">
+                                    <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-600" />
+                                    <Input
+                                        value={editClient.assigned_id}
+                                        onChange={e => setEditClient({ ...editClient, assigned_id: e.target.value })}
+                                        className="pl-10 bg-neutral-900/50 border-neutral-800 font-mono text-emerald-500 focus:border-white focus:bg-black transition-colors rounded-sm h-11"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <DialogFooter className="pt-4">
+                            <Button 
+                                type="submit" 
+                                disabled={isSubmitting}
+                                className="w-full bg-white hover:bg-neutral-200 text-black font-bold tracking-wider rounded-sm h-12"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                        UPDATING...
+                                    </>
+                                ) : (
+                                    'SAVE CHANGES'
+                                )}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent className="bg-[#050505] border-neutral-800 text-white sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-medium tracking-tight text-red-500">Confirm Deletion</DialogTitle>
+                        <DialogDescription className="text-neutral-400">
+                            Are you sure you want to delete <span className="text-white font-medium">{selectedClient?.name}</span>? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2">
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                            className="border-neutral-800 text-neutral-300 hover:bg-neutral-900"
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            onClick={handleDelete}
+                            disabled={isSubmitting}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            {isSubmitting ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Deleting...
+                                </>
+                            ) : (
+                                'Delete Client'
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             {/* Data Grid */}
             <Card className="bg-[#0A0A0A] border-neutral-800 rounded-sm overflow-hidden">
                 <CardHeader className="border-b border-neutral-900 py-4 px-6 flex flex-row items-center justify-between bg-neutral-950/30">
@@ -222,7 +422,8 @@ export default function ClientsList() {
                                 <TableHead className="font-mono text-[10px] uppercase text-neutral-500 tracking-wider h-10">Client Name</TableHead>
                                 <TableHead className="font-mono text-[10px] uppercase text-neutral-500 tracking-wider h-10">Organization</TableHead>
                                 <TableHead className="font-mono text-[10px] uppercase text-neutral-500 tracking-wider h-10">Contact</TableHead>
-                                <TableHead className="text-right font-mono text-[10px] uppercase text-neutral-500 tracking-wider h-10">Active Projects</TableHead>
+                                <TableHead className="text-center font-mono text-[10px] uppercase text-neutral-500 tracking-wider h-10">Projects</TableHead>
+                                <TableHead className="text-right font-mono text-[10px] uppercase text-neutral-500 tracking-wider h-10">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -248,7 +449,7 @@ export default function ClientsList() {
                                         <TableCell className="text-sm text-neutral-400 font-mono text-xs">
                                             {client.email}
                                         </TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell className="text-center">
                                             <span className={`inline-flex items-center justify-center min-w-[24px] h-6 px-2 rounded-sm text-xs font-mono ${
                                                 getProjectCount(client.id) > 0 
                                                     ? "bg-neutral-800 text-white border border-neutral-700" 
@@ -257,11 +458,36 @@ export default function ClientsList() {
                                                 {getProjectCount(client.id)}
                                             </span>
                                         </TableCell>
+                                        <TableCell className="text-right">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-neutral-500 hover:text-white">
+                                                        <MoreHorizontal className="w-4 h-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800">
+                                                    <DropdownMenuItem 
+                                                        onClick={() => openEditDialog(client)}
+                                                        className="text-neutral-300 focus:text-white focus:bg-neutral-800 cursor-pointer"
+                                                    >
+                                                        <Pencil className="w-4 h-4 mr-2" />
+                                                        Edit
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem 
+                                                        onClick={() => openDeleteDialog(client)}
+                                                        className="text-red-400 focus:text-red-300 focus:bg-red-950/50 cursor-pointer"
+                                                    >
+                                                        <Trash2 className="w-4 h-4 mr-2" />
+                                                        Delete
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="h-32 text-center text-neutral-500 border-none">
+                                    <TableCell colSpan={6} className="h-32 text-center text-neutral-500 border-none">
                                         <div className="flex flex-col items-center gap-2">
                                             <Search className="w-6 h-6 opacity-20" />
                                             <span className="text-xs font-mono uppercase tracking-widest">No matching records found in database.</span>
