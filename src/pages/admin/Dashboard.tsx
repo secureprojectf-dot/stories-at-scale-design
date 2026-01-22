@@ -1,48 +1,53 @@
-import { useStore } from "@/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
     Users, 
     FolderGit2, 
-    Ticket, // Changed from TicketCheck for better compatibility
+    Ticket,
     Activity, 
     ArrowUpRight, 
     Plus, 
     Terminal, 
     BarChart3, 
     AlertCircle,
-    CheckCircle2
+    FileText,
+    Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useClients, useProjects, useTickets, useSubmissions } from "@/hooks/useDatabase";
 
 export default function DashboardOverview() {
-    // 1. Destructure with default fallbacks to prevent "undefined" errors
-    const { clients = [], projects = [], tickets = [] } = useStore();
+    const { clients, loading: clientsLoading } = useClients();
+    const { projects, loading: projectsLoading } = useProjects();
+    const { tickets, loading: ticketsLoading } = useTickets();
+    const { submissions, loading: submissionsLoading } = useSubmissions();
 
-    // 2. Safely calculate system status
-    const openTicketCount = tickets ? tickets.filter(t => t.status === 'open').length : 0;
+    const isLoading = clientsLoading || projectsLoading || ticketsLoading || submissionsLoading;
+
+    // Calculate real stats from database
+    const openTicketCount = tickets.filter(t => t.status === 'open').length;
     const systemHealth = openTicketCount > 5 ? "WARNING" : "OPTIMAL";
 
-    // 3. Safe Calculations for stats
-    const totalClients = clients?.length || 0;
-    const activeProjects = projects ? projects.filter(p => !p.isCompleted).length : 0;
-    const completedProjects = projects ? projects.filter(p => p.isCompleted).length : 0;
-    const totalProjects = projects?.length || 1; // avoid divide by zero
+    const totalClients = clients.length;
+    const activeProjects = projects.filter(p => !p.is_completed).length;
+    const completedProjects = projects.filter(p => p.is_completed).length;
+    const totalProjects = projects.length || 1;
     const successRate = Math.round((completedProjects / totalProjects) * 100);
+    const pendingSubmissions = submissions.filter(s => s.status === 'pending').length;
 
     const stats = [
         { 
             label: "Total Clients", 
             value: totalClients, 
             icon: Users, 
-            trend: "+2.4%", 
+            trend: `${totalClients > 0 ? '+' : ''}${totalClients}`, 
             desc: "Active Database" 
         },
         { 
             label: "Active Projects", 
             value: activeProjects, 
             icon: FolderGit2, 
-            trend: "Steady", 
+            trend: `${completedProjects} Done`, 
             desc: "In Development" 
         },
         { 
@@ -61,6 +66,14 @@ export default function DashboardOverview() {
             desc: "Completion Metric" 
         },
     ];
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 animate-spin text-neutral-500" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-10 animate-in fade-in duration-500">
@@ -93,7 +106,7 @@ export default function DashboardOverview() {
 
             {/* Stat Modules */}
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                {stats.map((stat, i) => (
+                {stats.map((stat) => (
                     <Card key={stat.label} className="bg-[#0A0A0A] border-neutral-800 rounded-sm hover:border-neutral-700 transition-all duration-300 group relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                         
@@ -131,15 +144,14 @@ export default function DashboardOverview() {
                     </CardHeader>
                     <CardContent className="p-0">
                         <div className="divide-y divide-neutral-900">
-                            {/* Safe check for projects array length */}
-                            {projects && projects.length > 0 ? (
+                            {projects.length > 0 ? (
                                 projects.slice(0, 5).map(project => {
-                                    const clientName = clients?.find(c => c.id === project.clientId)?.name || "Unknown";
+                                    const clientName = clients.find(c => c.id === project.client_id)?.name || "Unknown";
                                     return (
                                         <div key={project.id} className="flex items-center justify-between p-4 hover:bg-neutral-900/30 transition-colors group">
                                             <div className="space-y-1">
                                                 <div className="flex items-center gap-2">
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${project.isCompleted ? 'bg-neutral-600' : 'bg-blue-500 animate-pulse'}`} />
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${project.is_completed ? 'bg-neutral-600' : 'bg-blue-500 animate-pulse'}`} />
                                                     <p className="text-sm font-medium text-neutral-200 group-hover:text-white transition-colors">{project.title}</p>
                                                 </div>
                                                 <p className="text-xs text-neutral-600 font-mono pl-3.5">CLIENT: {clientName.toUpperCase()}</p>
@@ -147,10 +159,10 @@ export default function DashboardOverview() {
                                             
                                             <div className="flex items-center gap-6">
                                                 <div className="hidden md:block w-24 h-1 bg-neutral-900 rounded-full overflow-hidden">
-                                                    <div className="h-full bg-white transition-all duration-1000" style={{ width: `${project.totalProgress}%` }} />
+                                                    <div className="h-full bg-white transition-all duration-1000" style={{ width: `${project.total_progress}%` }} />
                                                 </div>
                                                 <div className="text-right min-w-[3rem]">
-                                                    <span className="text-xs font-mono text-white block">{project.totalProgress}%</span>
+                                                    <span className="text-xs font-mono text-white block">{project.total_progress}%</span>
                                                 </div>
                                                 <ArrowUpRight className="w-4 h-4 text-neutral-700 group-hover:text-white transition-colors" />
                                             </div>
@@ -197,18 +209,40 @@ export default function DashboardOverview() {
                         <div className="h-px bg-neutral-900 my-2" />
 
                         <Link to="/admin/dashboard/submissions" className="block">
-                            <Button variant="ghost" className="w-full justify-start h-10 px-0 text-neutral-500 hover:text-white hover:bg-transparent transition-colors group">
-                                <AlertCircle className="w-4 h-4 mr-2 group-hover:text-amber-500 transition-colors" />
-                                Review Logs
+                            <Button variant="ghost" className="w-full justify-between h-10 px-0 text-neutral-500 hover:text-white hover:bg-transparent transition-colors group">
+                                <span className="flex items-center gap-2">
+                                    <FileText className="w-4 h-4 group-hover:text-blue-500 transition-colors" />
+                                    Pending Submissions
+                                </span>
+                                {pendingSubmissions > 0 && (
+                                    <span className="text-xs font-mono bg-blue-950 text-blue-400 px-2 py-0.5 rounded-sm border border-blue-900">
+                                        {pendingSubmissions}
+                                    </span>
+                                )}
+                            </Button>
+                        </Link>
+
+                        <Link to="/admin/dashboard/tickets" className="block">
+                            <Button variant="ghost" className="w-full justify-between h-10 px-0 text-neutral-500 hover:text-white hover:bg-transparent transition-colors group">
+                                <span className="flex items-center gap-2">
+                                    <AlertCircle className="w-4 h-4 group-hover:text-amber-500 transition-colors" />
+                                    Open Tickets
+                                </span>
+                                {openTicketCount > 0 && (
+                                    <span className="text-xs font-mono bg-amber-950 text-amber-400 px-2 py-0.5 rounded-sm border border-amber-900">
+                                        {openTicketCount}
+                                    </span>
+                                )}
                             </Button>
                         </Link>
                         
                         <div className="mt-8 p-4 bg-black border border-neutral-900 rounded-sm font-mono text-[10px] text-neutral-600 leading-relaxed overflow-hidden relative">
                             <div className="absolute top-0 left-0 w-1 h-full bg-neutral-800" />
                             <p>{`> SYSTEM CHECK...`}</p>
-                            <p>{`> DATABASE CONNECTION: OK`}</p>
-                            <p>{`> ENCRYPTION: AES-256`}</p>
-                            <p>{`> WAITING FOR INPUT`}<span className="animate-pulse">_</span></p>
+                            <p>{`> CLIENTS: ${totalClients} REGISTERED`}</p>
+                            <p>{`> PROJECTS: ${activeProjects} ACTIVE`}</p>
+                            <p>{`> TICKETS: ${openTicketCount} PENDING`}</p>
+                            <p>{`> STATUS: `}<span className={systemHealth === "OPTIMAL" ? "text-emerald-500" : "text-amber-500"}>{systemHealth}</span><span className="animate-pulse">_</span></p>
                         </div>
 
                     </CardContent>

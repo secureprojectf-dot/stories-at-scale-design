@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Activity, BarChart3, CheckCircle2, Circle, Settings2, Sliders, Flag, Loader2 } from "lucide-react";
+import { Activity, BarChart3, CheckCircle2, Circle, Settings2, Sliders, Flag, Loader2, Trash2, MoreHorizontal } from "lucide-react";
 import CreateProjectForm from "./CreateProjectForm";
 import { useClients, useProjects, DbProject, DbProjectStage } from "@/hooks/useDatabase";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 const STAGES = [
     'Requirements Analysis',
@@ -27,6 +29,7 @@ export default function ProjectsList() {
     const [editStage, setEditStage] = useState<string>(STAGES[0]);
     const [editProgress, setEditProgress] = useState(0);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
 
     const handleUpdate = async () => {
@@ -48,6 +51,40 @@ export default function ProjectsList() {
         }
     };
 
+    const handleDeleteProject = async () => {
+        if (!selectedProject) return;
+
+        setIsUpdating(true);
+
+        // First delete all project stages
+        const { error: stagesError } = await supabase
+            .from('project_stages')
+            .delete()
+            .eq('project_id', selectedProject.id);
+
+        if (stagesError) {
+            toast.error("Delete Failed", { description: stagesError.message });
+            setIsUpdating(false);
+            return;
+        }
+
+        // Then delete the project
+        const { error: projectError } = await supabase
+            .from('projects')
+            .delete()
+            .eq('id', selectedProject.id);
+
+        setIsUpdating(false);
+
+        if (projectError) {
+            toast.error("Delete Failed", { description: projectError.message });
+        } else {
+            toast.success("Project Deleted", { description: `${selectedProject.title} removed from database.` });
+            setIsDeleteDialogOpen(false);
+            fetchProjects();
+        }
+    };
+
     // Helper to open dialog and pre-fill data
     const openUpdateDialog = (project: DbProject & { stages: DbProjectStage[] }) => {
         setSelectedProject(project);
@@ -55,6 +92,11 @@ export default function ProjectsList() {
         const stage = project.stages.find(s => s.name === STAGES[0]);
         setEditProgress(stage?.completion_percentage || 0); 
         setIsDialogOpen(true);
+    };
+
+    const openDeleteDialog = (project: DbProject & { stages: DbProjectStage[] }) => {
+        setSelectedProject(project);
+        setIsDeleteDialogOpen(true);
     };
 
     if (loading) {
@@ -81,6 +123,41 @@ export default function ProjectsList() {
                 </div>
                 <CreateProjectForm onProjectCreated={fetchProjects} />
             </div>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent className="bg-[#050505] border-neutral-800 text-white sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-medium tracking-tight text-red-500">Confirm Deletion</DialogTitle>
+                        <DialogDescription className="text-neutral-400">
+                            Are you sure you want to delete <span className="text-white font-medium">{selectedProject?.title}</span>? This will also delete all project stages. This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2">
+                        <Button 
+                            variant="outline" 
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                            className="border-neutral-800 text-neutral-300 hover:bg-neutral-900"
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            onClick={handleDeleteProject}
+                            disabled={isUpdating}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                        >
+                            {isUpdating ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Deleting...
+                                </>
+                            ) : (
+                                'Delete Project'
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <div className="grid gap-6">
                 {projects.map((project) => {
@@ -207,6 +284,24 @@ export default function ProjectsList() {
                                         </div>
                                     </DialogContent>
                                 </Dialog>
+
+                                    {/* Actions Dropdown */}
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-neutral-500 hover:text-white">
+                                                <MoreHorizontal className="w-4 h-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="bg-neutral-900 border-neutral-800">
+                                            <DropdownMenuItem 
+                                                onClick={() => openDeleteDialog(project)}
+                                                className="text-red-400 focus:text-red-300 focus:bg-red-950/50 cursor-pointer"
+                                            >
+                                                <Trash2 className="w-4 h-4 mr-2" />
+                                                Delete Project
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
                             </CardHeader>
 
